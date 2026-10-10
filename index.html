@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão Operacional de Frota & Agenda - JM Operações</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+      .print-shadow-none { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+    }
+    .linha-cancelada {
+      background-color: #fef2f2 !important;
+      border-left: 4px solid #ef4444 !important;
+    }
+    .linha-cancelada td {
+      color: #991b1b !important;
+    }
+    .linha-cancelada .texto-riscado {
+      text-decoration: line-through;
+      opacity: 0.75;
+    }
+    /* Estilo de simulação modo Celular */
+    .modo-celular-container {
+      max-width: 440px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+      border: 8px solid #1e293b !important;
+      border-radius: 40px !important;
+      overflow: hidden !important;
+      background: #f8fafc !important;
+      padding-bottom: 2rem !important;
+    }
+  </style>
+</head>
+<body id="corpoPagina" class="bg-slate-100 text-slate-800 min-h-screen transition-all duration-300">
+
+  <!-- CABEÇALHO -->
+  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-md">
+          <i class="ph ph-truck text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg md:text-xl font-bold tracking-tight flex items-center gap-2">
+            Gestão de Frota & Agenda
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">JM Operações</span>
+          </h1>
+          <p class="text-xs text-slate-400">Controle Diário Integrado com o Google Sheets</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5 no-print">
+        <!-- Indicador de Status com Google Sheets -->
+        <span id="badgeConexao" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer" onclick="carregarDadosDoGoogleSheets()" title="Clique para sincronizar">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...
+        </span>
+
+        <!-- Botão Alternador Visão Web / Celular -->
+        <button id="btnAlternarVisao" onclick="alternarModoVisao()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition">
+          <i id="iconeVisao" class="ph ph-device-mobile text-base"></i>
+          <span id="textoVisao">Modo Celular</span>
+        </button>
+
+        <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
+          <span class="text-xs text-slate-400 px-2 font-medium">Data:</span>
+          <input type="date" id="filtroData" class="bg-transparent text-white text-xs md:text-sm font-semibold focus:outline-none pr-1" />
+        </div>
+
+        <button onclick="abrirModalServico()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold flex items-center gap-1.5 shadow">
+          <i class="ph ph-plus-circle text-base"></i> Novo
+        </button>
+
+        <button onclick="carregarDadosDoGoogleSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Recarregar Planilha">
+          <i class="ph ph-arrows-clockwise text-base"></i>
+        </button>
+
+        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700">
+          <i class="ph ph-printer text-base"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="containerPrincipal" class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- CARDS DE STATUS / KPI DA FROTA -->
+    <section>
+      <div id="gridKPIs" class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-slate-400">Frota Total</p>
+            <h3 id="kpiTotalFrota" class="text-xl md:text-2xl font-black text-slate-800">12</h3>
+          </div>
+          <span class="p-2 bg-slate-100 rounded-lg text-slate-600 text-lg"><i class="ph ph-truck"></i></span>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-emerald-600">Disponíveis</p>
+            <h3 id="kpiDisponivel" class="text-xl md:text-2xl font-black text-emerald-700">0</h3>
+          </div>
+          <span class="p-2 bg-emerald-100 text-emerald-600 rounded-lg text-lg"><i class="ph ph-check-circle"></i></span>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-blue-600">Em Atendimento</p>
+            <h3 id="kpiEmServico" class="text-xl md:text-2xl font-black text-blue-700">0</h3>
+          </div>
+          <span class="p-2 bg-blue-100 text-blue-600 rounded-lg text-lg"><i class="ph ph-steering-wheel"></i></span>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-xl border border-rose-200 bg-rose-50/20 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-rose-600">Manutenção</p>
+            <h3 id="kpiManutencao" class="text-xl md:text-2xl font-black text-rose-700">0</h3>
+          </div>
+          <span class="p-2 bg-rose-100 text-rose-600 rounded-lg text-lg"><i class="ph ph-wrench"></i></span>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-xl border border-purple-200 bg-purple-50/20 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
+          <div>
+            <p class="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-purple-600">Agregado</p>
+            <h3 id="kpiAgregado" class="text-xl md:text-2xl font-black text-purple-700">0</h3>
+          </div>
+          <span class="p-2 bg-purple-100 text-purple-600 rounded-lg text-lg"><i class="ph ph-handshake"></i></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- NAVEGAÇÃO ENTRE ABAS -->
+    <section class="no-print">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+          <button id="btnAbaLista" onclick="alternarAba('lista')" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm">
+            <i class="ph ph-list-dashes text-base"></i> Cronograma do Dia
+          </button>
+          <button id="btnAbaVeiculos" onclick="alternarAba('veiculos')" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
+            <i class="ph ph-squares-four text-base"></i> Frota
+          </button>
+          <button id="btnAbaHistorico" onclick="alternarAba('historico')" class="px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
+            <i class="ph ph-calendar text-base"></i> Geral
+          </button>
+        </div>
+
+        <div>
+          <span id="resumoAtendimentosBadge" class="text-xs font-bold text-slate-600 bg-slate-200/70 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <i class="ph ph-clock text-blue-600"></i> Carregando...
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODO 1: CRONOGRAMA DIÁRIO (TABELA NO MODO WEB / CARDS NO MODO CELULAR) -->
+    <section id="secaoLista" class="space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+              <i class="ph ph-calendar-check text-blue-600"></i> Agendamentos: 
+              <span id="dataTituloLista" class="text-blue-600 font-black"></span>
+            </h3>
+          </div>
+          <div class="w-full md:w-64">
+            <div class="relative">
+              <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+              <input type="text" id="filtroTexto" oninput="renderizarListaDoDia()" placeholder="Buscar cliente, placa, motorista..." class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-white" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Visão Tabela (Otimizada para Modo Web) -->
+        <div id="wrapperTabelaWeb" class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-100/70 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-4">Horário</th>
+                <th class="py-3 px-4">Veículo</th>
+                <th class="py-3 px-4">Equipe (Motorista / Ajudante)</th>
+                <th class="py-3 px-4">Cliente / Local</th>
+                <th class="py-3 px-4">Serviço</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4">Valor</th>
+                <th class="py-3 px-4">Obs</th>
+                <th class="py-3 px-4 text-center no-print">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabelaDia" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <!-- Visão Vertical em Lista de Cards (Ativada no Modo Celular) -->
+        <div id="wrapperListaCelular" class="p-3 space-y-3 hidden">
+          <!-- Injetado dinamicamente no mobile -->
+        </div>
+
+        <div id="msgVazioLista" class="text-center py-10 hidden">
+          <div class="p-3 bg-slate-100 rounded-full inline-block text-slate-400 mb-2">
+            <i class="ph ph-calendar-x text-2xl"></i>
+          </div>
+          <h4 class="font-bold text-slate-700 text-sm">Nenhum serviço agendado para esta data</h4>
+          <p class="text-xs text-slate-400 mt-1">Clique em "+ Novo" para adicionar uma ordem.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODO 2: VISÃO POR VEÍCULO -->
+    <section id="secaoVeiculos" class="space-y-4 hidden">
+      <div id="gridVeiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- MODO 3: HISTÓRICO GERAL -->
+    <section id="secaoHistorico" class="space-y-4 hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+        <h3 class="font-bold text-slate-800 text-base mb-3 flex items-center gap-2">
+          <i class="ph ph-database text-blue-600"></i> Todos os Agendamentos da Planilha
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-100/70 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-4">Data</th>
+                <th class="py-3 px-4">Horário</th>
+                <th class="py-3 px-4">Veículo</th>
+                <th class="py-3 px-4">Motorista / Ajudante</th>
+                <th class="py-3 px-4">Cliente / Local</th>
+                <th class="py-3 px-4">Serviço</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4">Valor</th>
+                <th class="py-3 px-4 text-center no-print">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabelaHistorico" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL DE NOVO / EDITAR SERVIÇO -->
+  <div id="modalServico" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 id="modalTitulo" class="font-bold text-sm md:text-base flex items-center gap-2">
+          <i class="ph ph-notepad text-blue-400"></i> Agendar Serviço
+        </h3>
+        <button onclick="fecharModalServico()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+      </div>
+
+      <form id="formServico" onsubmit="salvarServico(event)" class="p-5 space-y-3.5 text-xs md:text-sm overflow-y-auto">
+        <input type="hidden" id="servicoId" />
+        <input type="hidden" id="servicoLinha" />
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Data *</label>
+            <input type="date" id="campoData" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Horário *</label>
+            <input type="time" id="campoHora" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Veículo (Placa) *</label>
+          <select id="campoVeiculo" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Motorista *</label>
+            <select id="campoMotorista" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></select>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Ajudante</label>
+            <select id="campoAjudante" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Cliente / Local *</label>
+          <input type="text" id="campoCliente" placeholder="Ex: Edifício Admira Arrka, Posto Barricão..." required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Tipo de Serviço *</label>
+            <select id="campoTipoServico" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></select>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Status</label>
+            <select id="campoStatus" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+              <option value="Agendado">Agendado</option>
+              <option value="Em deslocamento">Em deslocamento</option>
+              <option value="No Local">No Local</option>
+              <option value="Finalizado">Finalizado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Valor Previsto (R$)</label>
+          <input type="number" step="0.01" id="campoValor" placeholder="0,00" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Observações</label>
+          <textarea id="campoObs" rows="2" placeholder="Ex: 03 pessoas, cano de 75..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t">
+          <button type="button" onclick="fecharModalServico()" class="px-3.5 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg font-medium">Cancelar</button>
+          <button id="btnSalvarModal" type="submit" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold shadow">
+            Salvar no Google Sheets
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz62qdZsggJCGqm-okOeqqMTeMZExkKGz45bicNHEtHX04pB0e6cex7bLgRrJVMe_dJ/exec";
+
+    // Bases sincronizadas dinamicamente
+    let baseVeiculos = [];
+    let baseServicos = [];
+    let baseMotoristas = [];
+    let baseAjudantes = [];
+    let agendamentos = [];
+    let statusVeiculos = JSON.parse(localStorage.getItem("status_veiculos_jm") || "{}");
+    let abaAtual = "lista";
+    let modoCelularAtivo = false;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const hoje = new Date().toISOString().split("T")[0];
+      const campoDataFiltro = document.getElementById("filtroData");
+      campoDataFiltro.value = hoje;
+      campoDataFiltro.addEventListener("change", () => renderizarTudo());
+
+      carregarDadosDoGoogleSheets();
+    });
+
+    // Alternar Visão Web <-> Visão Celular
+    function alternarModoVisao() {
+      modoCelularAtivo = !modoCelularAtivo;
+      const container = document.getElementById("containerPrincipal");
+      const texto = document.getElementById("textoVisao");
+      const icone = document.getElementById("iconeVisao");
+      const btn = document.getElementById("btnAlternarVisao");
+
+      if (modoCelularAtivo) {
+        container.classList.add("modo-celular-container");
+        document.body.classList.add("bg-slate-300");
+        texto.innerText = "Modo Web";
+        icone.className = "ph ph-desktop text-base";
+        btn.className = "bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition";
+      } else {
+        container.classList.remove("modo-celular-container");
+        document.body.classList.remove("bg-slate-300");
+        texto.innerText = "Modo Celular";
+        icone.className = "ph ph-device-mobile text-base";
+        btn.className = "bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition";
+      }
+
+      renderizarListaDoDia();
+    }
+
+    // SINCRONIZAR TUDO COM O GOOGLE SHEETS
+    async function carregarDadosDoGoogleSheets() {
+      const badge = document.getElementById("badgeConexao");
+      badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5";
+      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...`;
+
+      try {
+        const res = await fetch(URL_APPS_SCRIPT + "?t=" + new Date().getTime());
+        const json = await res.json();
+
+        if (json.status === "success") {
+          baseVeiculos = json.veiculos || [];
+          baseServicos = json.servicos || [];
+          baseMotoristas = json.motoristas || [];
+          baseAjudantes = json.ajudantes || [];
+          agendamentos = json.data || [];
+
+          // Salvar cache para contingência
+          localStorage.setItem("cache_veiculos", JSON.stringify(baseVeiculos));
+          localStorage.setItem("cache_servicos", JSON.stringify(baseServicos));
+          localStorage.setItem("cache_motoristas", JSON.stringify(baseMotoristas));
+          localStorage.setItem("cache_ajudantes", JSON.stringify(baseAjudantes));
+          localStorage.setItem("cache_agenda", JSON.stringify(agendamentos));
+
+          popularSelects();
+          badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-emerald-900/60 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5";
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado (${agendamentos.length} ordens)`;
+          renderizarTudo();
+        }
+      } catch (err) {
+        console.error("Erro na sincronização:", err);
+        // Recuperar cache se falhar
+        baseVeiculos = JSON.parse(localStorage.getItem("cache_veiculos") || "[]");
+        baseServicos = JSON.parse(localStorage.getItem("cache_servicos") || "[]");
+        baseMotoristas = JSON.parse(localStorage.getItem("cache_motoristas") || "[]");
+        baseAjudantes = JSON.parse(localStorage.getItem("cache_ajudantes") || "[]");
+        agendamentos = JSON.parse(localStorage.getItem("cache_agenda") || "[]");
+
+        popularSelects();
+        badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-rose-900/60 text-rose-300 border border-rose-500/30 flex items-center gap-1.5";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Modo Offline`;
+        renderizarTudo();
+      }
+    }
+
+    function popularSelects() {
+      const selVeiculo = document.getElementById("campoVeiculo");
+      selVeiculo.innerHTML = baseVeiculos.map(v => 
+        `<option value="${v.placa}">${v.placa} - ${v.tipo} (${(v.cap/1000).toLocaleString('pt-BR')}m³)</option>`
+      ).join("");
+
+      const selMotorista = document.getElementById("campoMotorista");
+      selMotorista.innerHTML = baseMotoristas.map(m => 
+        `<option value="${m}">${m}</option>`
+      ).join("");
+
+      const selAjudante = document.getElementById("campoAjudante");
+      selAjudante.innerHTML = `<option value="">Nenhum</option>` + 
+        baseAjudantes.map(a => `<option value="${a}">${a}</option>`).join("");
+
+      const selServico = document.getElementById("campoTipoServico");
+      selServico.innerHTML = baseServicos.map(s => 
+        `<option value="${s}">${s}</option>`
+      ).join("");
+    }
+
+    function alternarAba(aba) {
+      abaAtual = aba;
+      ["lista", "veiculos", "historico"].forEach(a => {
+        const el = document.getElementById("secao" + a.charAt(0).toUpperCase() + a.slice(1));
+        const btn = document.getElementById("btnAba" + a.charAt(0).toUpperCase() + a.slice(1));
+        if (a === aba) {
+          el.classList.remove("hidden");
+          btn.className = "px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm";
+        } else {
+          el.classList.add("hidden");
+          btn.className = "px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900";
+        }
+      });
+      renderizarTudo();
+    }
+
+    function formatarDataBR(dataIso) {
+      if (!dataIso) return "";
+      const p = dataIso.split("-");
+      return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dataIso;
+    }
+
+    function renderizarTudo() {
+      const dataSelecionada = document.getElementById("filtroData").value;
+      document.getElementById("dataTituloLista").innerText = formatarDataBR(dataSelecionada);
+
+      renderizarKPIsEGrid();
+      renderizarListaDoDia();
+      renderizarHistoricoGeral();
+    }
+
+    function renderizarKPIsEGrid() {
+      const dataSelecionada = document.getElementById("filtroData").value;
+      const servicosDoDia = agendamentos.filter(a => a.data === dataSelecionada && a.status !== "Cancelado");
+
+      let countDisponivel = 0;
+      let countEmServico = 0;
+      let countManutencao = 0;
+      let countAgregado = 0;
+
+      const grid = document.getElementById("gridVeiculos");
+      grid.innerHTML = "";
+
+      baseVeiculos.forEach(veiculo => {
+        const servicosVeiculo = servicosDoDia.filter(s => s.veiculo === veiculo.placa)
+          .sort((a,b) => (a.hora || "").localeCompare(b.hora || ""));
+
+        let statusFixado = statusVeiculos[veiculo.placa] || "Automático";
+        let statusCalculado = "Disponível";
+
+        if (statusFixado === "Em Manutenção" || veiculo.situacao === "Em Manutenção") {
+          statusCalculado = "Em Manutenção";
+          countManutencao++;
+        } else if (statusFixado === "Agregado(Ambiental)" || veiculo.situacao === "Agregado(Ambiental)") {
+          statusCalculado = "Agregado(Ambiental)";
+          countAgregado++;
+        } else if (servicosVeiculo.length > 0) {
+          statusCalculado = "Em Atendimento";
+          countEmServico++;
+        } else {
+          statusCalculado = "Disponível";
+          countDisponivel++;
+        }
+
+        const configBadge = {
+          "Disponível": { bg: "bg-emerald-100", text: "text-emerald-700", border: "border-emerald-300" },
+          "Em Atendimento": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300" },
+          "Em Manutenção": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300" },
+          "Agregado(Ambiental)": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300" }
+        }[statusCalculado];
+
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col justify-between hover:border-slate-300 transition";
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-black text-base tracking-wide text-slate-900">${veiculo.placa}</span>
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${veiculo.tipo === 'Água Potável' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800'}">
+                    ${veiculo.tipo}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400 font-medium">Capacidade: ${(veiculo.cap/1000).toLocaleString('pt-BR')} m³ (${veiculo.cap} L)</p>
+              </div>
+
+              <select onchange="alterarStatusVeiculo('${veiculo.placa}', this.value)" class="text-xs font-semibold rounded-lg px-2 py-1 border ${configBadge.border} ${configBadge.bg} ${configBadge.text} focus:outline-none">
+                <option value="Automático" ${statusFixado === 'Automático' ? 'selected' : ''}>Auto (${statusCalculado})</option>
+                <option value="Disponível" ${statusFixado === 'Disponível' ? 'selected' : ''}>🟢 Disponível</option>
+                <option value="Em Manutenção" ${statusFixado === 'Em Manutenção' ? 'selected' : ''}>🔴 Manutenção</option>
+                <option value="Agregado(Ambiental)" ${statusFixado === 'Agregado(Ambiental)' ? 'selected' : ''}>🟣 Agregado</option>
+              </select>
+            </div>
+
+            <div class="py-3 space-y-2">
+              <div class="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
+                <span>Atendimentos no dia (${servicosVeiculo.length})</span>
+                <button onclick="abrirModalServico('${veiculo.placa}')" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 no-print">
+                  <i class="ph ph-plus"></i> Agendar
+                </button>
+              </div>
+
+              ${servicosVeiculo.length === 0 ? `
+                <div class="text-center py-5 border border-dashed rounded-lg border-slate-200">
+                  <p class="text-xs text-slate-400">Nenhum serviço programado</p>
+                </div>
+              ` : servicosVeiculo.map(s => `
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 hover:bg-blue-50/50 transition">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-xs text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">${s.hora}h</span>
+                    <span class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                      <i class="ph ph-user"></i> ${s.motorista}${s.ajudante ? '+ ' + s.ajudante : ''}
+                    </span>
+                  </div>
+                  <h4 class="font-bold text-slate-800 text-sm mt-1 leading-tight">${s.cliente}</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">${s.tipoServico}</p>${s.obs ? `<p class="text-[11px] text-slate-400 italic mt-1 bg-white p-1 rounded border border-slate-100">${s.obs}</p>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById("kpiTotalFrota").innerText = baseVeiculos.length;
+      document.getElementById("kpiDisponivel").innerText = countDisponivel;
+      document.getElementById("kpiEmServico").innerText = countEmServico;
+      document.getElementById("kpiManutencao").innerText = countManutencao;
+      document.getElementById("kpiAgregado").innerText = countAgregado;
+    }
+
+    function renderizarListaDoDia() {
+      const dataSelecionada = document.getElementById("filtroData").value;
+      const textoFiltro = (document.getElementById("filtroTexto")?.value || "").toLowerCase();
+
+      let servicos = agendamentos.filter(a => a.data === dataSelecionada);
+
+      if (textoFiltro) {
+        servicos = servicos.filter(s => 
+          (s.cliente || "").toLowerCase().includes(textoFiltro) ||
+          (s.veiculo || "").toLowerCase().includes(textoFiltro) ||
+          (s.motorista || "").toLowerCase().includes(textoFiltro) ||
+          (s.ajudante || "").toLowerCase().includes(textoFiltro) ||
+          (s.tipoServico || "").toLowerCase().includes(textoFiltro) ||
+          (s.status || "").toLowerCase().includes(textoFiltro)
+        );
+      }
+
+      servicos.sort((a,b) => (a.hora || "").localeCompare(b.hora || ""));
+
+      const tbody = document.getElementById("corpoTabelaDia");
+      const wrapperCelular = document.getElementById("wrapperListaCelular");
+      const wrapperWeb = document.getElementById("wrapperTabelaWeb");
+      const msgVazio = document.getElementById("msgVazioLista");
+      const badgeResumo = document.getElementById("resumoAtendimentosBadge");
+
+      const servicosAtivos = servicos.filter(s => s.status !== "Cancelado");
+      const totalValor = servicosAtivos.reduce((acc, curr) => acc + (parseFloat(curr.valor) || 0), 0);
+      badgeResumo.innerHTML = `<i class="ph ph-check-circle text-emerald-600"></i> ${servicosAtivos.length} ativas (${servicos.length - servicosAtivos.length} canc.) • Total: R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+      if (servicos.length === 0) {
+        tbody.innerHTML = "";
+        wrapperCelular.innerHTML = "";
+        msgVazio.classList.remove("hidden");
+        return;
+      }
+
+      msgVazio.classList.add("hidden");
+
+      // Controle de visibilidade dependendo do modo
+      if (modoCelularAtivo) {
+        wrapperWeb.classList.add("hidden");
+        wrapperCelular.classList.remove("hidden");
+      } else {
+        wrapperWeb.classList.remove("hidden");
+        wrapperCelular.classList.add("hidden");
+      }
+
+      // Renderização da Tabela Desktop
+      tbody.innerHTML = servicos.map(s => {
+        const vInfo = baseVeiculos.find(v => v.placa === s.veiculo) || { tipo: "Resíduo" };
+        const tipoBadge = vInfo.tipo === 'Água Potável' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800';
+        const isCancelado = s.status === "Cancelado";
+
+        const statusColors = {
+          "Agendado": "bg-slate-100 text-slate-700 border-slate-300",
+          "Em deslocamento": "bg-amber-100 text-amber-800 border-amber-300 font-semibold",
+          "No Local": "bg-blue-100 text-blue-800 border-blue-300 font-semibold",
+          "Finalizado": "bg-emerald-100 text-emerald-800 border-emerald-300 font-semibold",
+          "Cancelado": "bg-rose-200 text-rose-900 border-rose-400 font-bold"
+        }[s.status || "Agendado"] || "bg-slate-100 text-slate-700 border-slate-300";
+
+        return `
+          <tr class="${isCancelado ? 'linha-cancelada' : 'hover:bg-slate-50'} transition border-b border-slate-100">
+            <td class="py-3 px-4 font-black whitespace-nowrap">
+              <span class="${isCancelado ? 'bg-rose-100 border border-rose-300 text-rose-800' : 'bg-blue-50 border border-blue-200 text-blue-700'} px-2 py-1 rounded-md">
+                ${s.hora}h
+              </span>
+            </td>
+            <td class="py-3 px-4 whitespace-nowrap">
+              <span class="font-bold text-slate-800 ${isCancelado ? 'texto-riscado' : ''}">${s.veiculo}</span>
+              <span class="text-[10px] ml-1 px-2 py-0.5 rounded-full font-semibold ${tipoBadge}">${vInfo.tipo}</span>
+            </td>
+            <td class="py-3 px-4 whitespace-nowrap font-medium text-slate-700">
+              <div class="flex items-center gap-1.5">
+                <i class="ph ph-user text-slate-400"></i>
+                <span class="${isCancelado ? 'texto-riscado' : ''}"><b>${s.motorista}</b> ${s.ajudante ? '<span class="text-xs text-slate-500 font-normal">(Aj: ' + s.ajudante + ')</span>' : ''}</span>
+              </div>
+            </td>
+            <td class="py-3 px-4 font-bold text-slate-900">
+              <span class="${isCancelado ? 'texto-riscado' : ''}">${s.cliente}</span>
+            </td>
+            <td class="py-3 px-4 text-xs font-semibold text-slate-600">${s.tipoServico}</td>
+            
+            <td class="py-3 px-4 whitespace-nowrap">
+              <select onchange="atualizarStatusServico('${s.linha || ''}', '${s.id}', this.value)" class="text-xs px-2.5 py-1 rounded-lg border focus:outline-none cursor-pointer ${statusColors}">
+                <option value="Agendado" ${s.status === 'Agendado' ? 'selected' : ''}>⏳ Agendado</option>
+                <option value="Em deslocamento" ${s.status === 'Em deslocamento' ? 'selected' : ''}>🚚 Em deslocamento</option>
+                <option value="No Local" ${s.status === 'No Local' ? 'selected' : ''}>📍 No Local</option>
+                <option value="Finalizado" ${s.status === 'Finalizado' ? 'selected' : ''}>✅ Finalizado</option>
+                <option value="Cancelado" ${s.status === 'Cancelado' ? 'selected' : ''}>❌ Cancelado</option>
+              </select>
+            </td>
+
+            <td class="py-3 px-4 font-bold ${isCancelado ? 'text-rose-800 texto-riscado' : 'text-emerald-700'} whitespace-nowrap">
+              ${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}
+            </td>
+            <td class="py-3 px-4 text-xs text-slate-500 max-w-xs truncate" title="${s.obs || ''}">
+              ${isCancelado ? '<b class="text-rose-700">[CANCELADO]</b> ' : ''}${s.obs || '-'}
+            </td>
+            <td class="py-3 px-4 text-center whitespace-nowrap no-print">
+              <div class="flex items-center justify-center gap-2">
+                <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1.5 rounded-md transition" title="Editar">
+                  <i class="ph ph-pencil-simple text-base"></i>
+                </button>
+                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-md transition" title="Excluir">
+                  <i class="ph ph-trash text-base"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Renderização do Modo Celular (Cards Verticais)
+      wrapperCelular.innerHTML = servicos.map(s => {
+        const vInfo = baseVeiculos.find(v => v.placa === s.veiculo) || { tipo: "Resíduo" };
+        const isCancelado = s.status === "Cancelado";
+
+        return `
+          <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-2 ${isCancelado ? 'linha-cancelada' : ''}">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="bg-blue-600 text-white font-bold text-xs px-2 py-0.5 rounded">${s.hora}h</span>
+                <span class="font-bold text-slate-900 text-sm ${isCancelado ? 'texto-riscado' : ''}">${s.veiculo}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="editarServico('${s.id}')" class="text-blue-600 p-1"><i class="ph ph-pencil-simple text-base"></i></button>
+                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 p-1"><i class="ph ph-trash text-base"></i></button>
+              </div>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm leading-tight ${isCancelado ? 'texto-riscado' : ''}">${s.cliente}</h4>
+              <p class="text-xs text-slate-500 mt-0.5">${s.tipoServico}</p>
+            </div>
+
+            <div class="text-xs text-slate-700 flex items-center justify-between">
+              <span>👤 <b>${s.motorista}</b> ${s.ajudante ? '+ ' + s.ajudante : ''}</span>
+              ${s.valor ? `<span class="font-bold text-emerald-700">R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">Status:</span>
+              <select onchange="atualizarStatusServico('${s.linha || ''}', '${s.id}', this.value)" class="text-xs px-2 py-1 rounded-md border font-medium focus:outline-none">
+                <option value="Agendado" ${s.status === 'Agendado' ? 'selected' : ''}>⏳ Agendado</option>
+                <option value="Em deslocamento" ${s.status === 'Em deslocamento' ? 'selected' : ''}>🚚 Em deslocamento</option>
+                <option value="No Local" ${s.status === 'No Local' ? 'selected' : ''}>📍 No Local</option>
+                <option value="Finalizado" ${s.status === 'Finalizado' ? 'selected' : ''}>✅ Finalizado</option>
+                <option value="Cancelado" ${s.status === 'Cancelado' ? 'selected' : ''}>❌ Cancelado</option>
+              </select>
+            </div>
+            ${s.obs ? `<div class="text-[11px] text-slate-500 bg-slate-50 p-1.5 rounded">${s.obs}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderizarHistoricoGeral() {
+      const tbody = document.getElementById("corpoTabelaHistorico");
+      const ordenados = [...agendamentos].sort((a,b) => ((b.data || "") + (b.hora || "")).localeCompare((a.data || "") + (a.hora || "")));
+
+      if (ordenados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400">Nenhum registro encontrado.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = ordenados.map(s => {
+        const isCancelado = s.status === "Cancelado";
+        return `
+          <tr class="${isCancelado ? 'linha-cancelada' : 'hover:bg-slate-50'} transition border-b border-slate-100 text-xs">
+            <td class="py-2.5 px-4 font-semibold text-slate-700">${formatarDataBR(s.data)}</td>
+            <td class="py-2.5 px-4 font-bold text-blue-600">${s.hora}h</td>
+            <td class="py-2.5 px-4 font-bold text-slate-800">${s.veiculo}</td>
+            <td class="py-2.5 px-4 text-slate-600"><b>${s.motorista}</b> ${s.ajudante ? '+ ' + s.ajudante : ''}</td>
+            <td class="py-2.5 px-4 font-semibold text-slate-900">${s.cliente}</td>
+            <td class="py-2.5 px-4 text-slate-600">${s.tipoServico}</td>
+            <td class="py-2.5 px-4 font-bold">${s.status || 'Agendado'}</td>
+            <td class="py-2.5 px-4 font-bold text-emerald-700">${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}</td>
+            <td class="py-2.5 px-4 text-center no-print">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i class="ph ph-pencil-simple text-sm"></i></button>
+                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="ph ph-trash text-sm"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function editarServico(id) {
+      const s = agendamentos.find(item => item.id === id);
+      if (!s) return;
+
+      document.getElementById("servicoId").value = s.id;
+      document.getElementById("servicoLinha").value = s.linha || "";
+      document.getElementById("campoData").value = s.data;
+      document.getElementById("campoHora").value = s.hora;
+      document.getElementById("campoVeiculo").value = s.veiculo;
+      document.getElementById("campoMotorista").value = s.motorista;
+      document.getElementById("campoAjudante").value = s.ajudante || "";
+      document.getElementById("campoCliente").value = s.cliente;
+      document.getElementById("campoTipoServico").value = s.tipoServico;
+      document.getElementById("campoStatus").value = s.status || "Agendado";
+      document.getElementById("campoValor").value = s.valor || "";
+      document.getElementById("campoObs").value = s.obs || "";
+
+      document.getElementById("modalTitulo").innerHTML = `<i class="ph ph-pencil-simple text-blue-400"></i> Editar Agendamento`;
+      document.getElementById("btnSalvarModal").innerText = "Atualizar na Planilha";
+      document.getElementById("modalServico").classList.remove("hidden");
+    }
+
+    async function atualizarStatusServico(linha, id, novoStatus) {
+      const s = agendamentos.find(item => item.id === id);
+      if (s) {
+        s.status = novoStatus;
+        renderizarTudo();
+      }
+
+      if (linha) {
+        try {
+          await fetch(URL_APPS_SCRIPT, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "atualizarStatus", linha: linha, status: novoStatus })
+          });
+        } catch (e) {
+          console.error("Erro ao sincronizar status:", e);
+        }
+      }
+    }
+
+    function alterarStatusVeiculo(placa, valor) {
+      if (valor === "Automático") {
+        delete statusVeiculos[placa];
+      } else {
+        statusVeiculos[placa] = valor;
+      }
+      localStorage.setItem("status_veiculos_jm", JSON.stringify(statusVeiculos));
+      renderizarTudo();
+    }
+
+    function abrirModalServico(placaPadrao = null) {
+      document.getElementById("formServico").reset();
+      document.getElementById("servicoId").value = "";
+      document.getElementById("servicoLinha").value = "";
+      document.getElementById("campoData").value = document.getElementById("filtroData").value;
+      document.getElementById("modalTitulo").innerHTML = `<i class="ph ph-notepad text-blue-400"></i> Agendar Serviço no Google Sheets`;
+      document.getElementById("btnSalvarModal").innerText = "Salvar no Google Sheets";
+
+      if (placaPadrao) {
+        document.getElementById("campoVeiculo").value = placaPadrao;
+      }
+      document.getElementById("modalServico").classList.remove("hidden");
+    }
+
+    function fecharModalServico() {
+      document.getElementById("modalServico").classList.add("hidden");
+    }
+
+    async function salvarServico(e) {
+      e.preventDefault();
+      const btnSalvar = document.getElementById("btnSalvarModal");
+      btnSalvar.disabled = true;
+      btnSalvar.innerText = "Gravando na Planilha...";
+
+      const servicoId = document.getElementById("servicoId").value;
+      const servicoLinha = document.getElementById("servicoLinha").value;
+
+      const dadosServico = {
+        data: document.getElementById("campoData").value,
+        hora: document.getElementById("campoHora").value,
+        veiculo: document.getElementById("campoVeiculo").value,
+        motorista: document.getElementById("campoMotorista").value,
+        ajudante: document.getElementById("campoAjudante").value,
+        cliente: document.getElementById("campoCliente").value,
+        tipoServico: document.getElementById("campoTipoServico").value,
+        valor: document.getElementById("campoValor").value,
+        obs: document.getElementById("campoObs").value,
+        status: document.getElementById("campoStatus").value || "Agendado"
+      };
+
+      const isEdicao = Boolean(servicoId);
+
+      if (isEdicao) {
+        const index = agendamentos.findIndex(item => item.id === servicoId);
+        if (index !== -1) {
+          agendamentos[index] = { ...agendamentos[index], ...dadosServico };
+        }
+      } else {
+        agendamentos.push({ ...dadosServico, id: 'tmp_' + Date.now() });
+      }
+
+      renderizarTudo();
+      fecharModalServico();
+
+      try {
+        const payload = isEdicao 
+          ? { action: "editar", linha: servicoLinha, data: dadosServico }
+          : { action: "adicionar", data: dadosServico };
+
+        await fetch(URL_APPS_SCRIPT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload)
+        });
+        setTimeout(carregarDadosDoGoogleSheets, 1200);
+      } catch (err) {
+        console.error("Erro ao enviar ao Sheets:", err);
+      }
+
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar no Google Sheets";
+    }
+
+    async function excluirServico(linha, id) {
+      if (!confirm("Deseja realmente excluir este agendamento?")) return;
+
+      agendamentos = agendamentos.filter(s => s.id !== id);
+      renderizarTudo();
+
+      if (linha) {
+        try {
+          await fetch(URL_APPS_SCRIPT, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "excluir", linha: linha })
+          });
+          setTimeout(carregarDadosDoGoogleSheets, 1200);
+        } catch (err) {
+          console.error("Erro ao excluir do Sheets:", err);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
