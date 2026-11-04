@@ -553,7 +553,7 @@
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-[11px] text-blue-700 bg-blue-100 px-1 py-0.5 rounded">${s.hora}h</span>
                     <span class="text-[11px] font-semibold text-slate-700">
-                      ${s.motorista}${s.ajudante ? '+ ' + s.ajudante : ''}
+                      ${s.motorista} ${s.ajudante ? '+ ' + s.ajudante : ''}
                     </span>
                   </div>
                   <h4 class="font-bold text-slate-800 text-xs mt-1 leading-tight">${s.cliente}</h4>
@@ -803,4 +803,79 @@
     async function salvarServico(e) {
       e.preventDefault();
       const btnSalvar = document.getElementById("btnSalvarModal");
-      btnSal
+      btnSalvar.disabled = true;
+      btnSalvar.innerText = "Gravando na Planilha...";
+
+      const servicoId = document.getElementById("servicoId").value;
+      const servicoLinha = document.getElementById("servicoLinha").value;
+
+      const dadosServico = {
+        data: document.getElementById("campoData").value,
+        hora: document.getElementById("campoHora").value,
+        veiculo: document.getElementById("campoVeiculo").value,
+        motorista: document.getElementById("campoMotorista").value,
+        ajudante: document.getElementById("campoAjudante").value,
+        cliente: document.getElementById("campoCliente").value,
+        tipoServico: document.getElementById("campoTipoServico").value,
+        valor: document.getElementById("campoValor").value,
+        obs: document.getElementById("campoObs").value,
+        status: document.getElementById("campoStatus").value || "Agendado"
+      };
+
+      const isEdicao = Boolean(servicoId);
+
+      if (isEdicao) {
+        const index = agendamentos.findIndex(item => item.id === servicoId);
+        if (index !== -1) {
+          agendamentos[index] = { ...agendamentos[index], ...dadosServico };
+        }
+      } else {
+        agendamentos.push({ ...dadosServico, id: 'tmp_' + Date.now() });
+      }
+
+      renderizarTudo();
+      fecharModalServico();
+
+      try {
+        const payload = isEdicao 
+          ? { action: "editar", linha: servicoLinha, data: dadosServico }
+          : { action: "adicionar", data: dadosServico };
+
+        await fetch(URL_APPS_SCRIPT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload)
+        });
+        setTimeout(carregarDadosDoGoogleSheets, 1200);
+      } catch (err) {
+        console.error("Erro ao enviar ao Sheets:", err);
+      }
+
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar no Google Sheets";
+    }
+
+    async function excluirServico(linha, id) {
+      if (!confirm("Deseja realmente excluir este agendamento?")) return;
+
+      agendamentos = agendamentos.filter(s => s.id !== id);
+      renderizarTudo();
+
+      if (linha) {
+        try {
+          await fetch(URL_APPS_SCRIPT, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "excluir", linha: linha })
+          });
+          setTimeout(carregarDadosDoGoogleSheets, 1200);
+        } catch (err) {
+          console.error("Erro ao excluir do Sheets:", err);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
