@@ -26,6 +26,12 @@
       text-decoration: line-through;
       opacity: 0.75;
     }
+    /* Limite de largura unificado para a tela inteira */
+    .layout-centralizado {
+      max-width: 1440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
     /* Estilização para fixar o topo no scroll */
     .painel-fixo {
       position: sticky;
@@ -34,7 +40,7 @@
       background-color: #f1f5f9;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
     }
-    /* Tabela fluida sem quebra de letras empilhadas */
+    /* Tabela fluida sem quebra vertical de palavras */
     .tabela-fluida {
       width: 100%;
       table-layout: auto;
@@ -50,232 +56,236 @@
     }
   </style>
 </head>
-<body id="corpoPagina" class="bg-slate-100 text-slate-800 min-h-screen">
+<body id="corpoPagina" class="bg-slate-200/60 text-slate-800 min-h-screen">
 
-  <!-- BANNER ENCAIXADO DE PONTA A PONTA (SEM BORDAS LATERAIS) -->
-  <div class="w-full overflow-hidden bg-slate-900 leading-none">
-    <img 
-      src="banner_jm.jpg" 
-      alt="JM Ambiental - Gestão de Frota e Agenda" 
-      class="w-full h-auto block m-0 p-0"
-      style="display: block; width: 100%; max-height: 220px; object-fit: cover; object-position: center bottom;"
-      onerror="this.style.display='none'"
-    />
-  </div>
+  <!-- WRAPPER CENTRALIZADO QUE ALINHA TUDO PERFEITAMENTE -->
+  <div class="layout-centralizado bg-slate-100 shadow-2xl min-h-screen">
 
-  <!-- BLOCO FIXO / CONGELADO AO ROLAR A PÁGINA -->
-  <div class="painel-fixo border-b border-slate-200">
-    <!-- Barra de Controles e Filtros -->
-    <header class="bg-slate-900 text-white shadow-md">
-      <div class="max-w-[98%] mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2.5">
-        <div class="flex items-center gap-2">
-          <span id="badgeConexao" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer" onclick="carregarDadosDoGoogleSheets()" title="Clique para sincronizar">
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...
-          </span>
-        </div>
+    <!-- BANNER COM PROPORÇÃO ORIGINAL TOTALMENTE VISÍVEL -->
+    <div class="w-full bg-slate-950 overflow-hidden flex justify-center">
+      <img 
+        src="banner_jm.jpg" 
+        alt="JM Ambiental - Gestão de Frota e Agenda" 
+        class="w-full h-auto block select-none"
+        style="max-width: 100%; height: auto; display: block;"
+        onerror="this.style.display='none'"
+      />
+    </div>
 
-        <div class="flex flex-wrap items-center gap-2 no-print">
-          <!-- Filtro de Período -->
-          <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 gap-1">
-            <span class="text-xs text-slate-400 px-1 font-medium"><i class="ph ph-funnel"></i> Período:</span>
-            <select id="filtroMes" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option value="todos">Mês (Todos)</option>
-              <option value="01">Janeiro</option>
-              <option value="02">Fevereiro</option>
-              <option value="03">Março</option>
-              <option value="04">Abril</option>
-              <option value="05">Maio</option>
-              <option value="06">Junho</option>
-              <option value="07">Julho</option>
-              <option value="08">Agosto</option>
-              <option value="09">Setembro</option>
-              <option value="10">Outubro</option>
-              <option value="11">Novembro</option>
-              <option value="12">Dezembro</option>
-            </select>
-
-            <select id="filtroAno" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option value="todos">Ano (Todos)</option>
-              <option value="2026">2026</option>
-              <option value="2027">2027</option>
-              <option value="2028">2028</option>
-            </select>
+    <!-- BLOCO FIXO / CONGELADO AO ROLAR A PÁGINA -->
+    <div class="painel-fixo border-b border-slate-300">
+      <!-- Barra de Controles e Filtros -->
+      <header class="bg-slate-900 text-white shadow-md">
+        <div class="px-4 py-2 flex flex-wrap items-center justify-between gap-2.5">
+          <div class="flex items-center gap-2">
+            <span id="badgeConexao" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer" onclick="carregarDadosDoGoogleSheets()" title="Clique para sincronizar">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...
+            </span>
           </div>
 
-          <!-- Seletor de Data -->
-          <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
-            <span class="text-xs text-slate-400 px-1.5 font-medium">Dia:</span>
-            <input type="date" id="filtroData" class="bg-transparent text-white text-xs font-semibold focus:outline-none pr-1" />
+          <div class="flex flex-wrap items-center gap-2 no-print">
+            <!-- Filtro de Período -->
+            <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 gap-1">
+              <span class="text-xs text-slate-400 px-1 font-medium"><i class="ph ph-funnel"></i> Período:</span>
+              <select id="filtroMes" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="todos">Mês (Todos)</option>
+                <option value="01">Janeiro</option>
+                <option value="02">Fevereiro</option>
+                <option value="03">Março</option>
+                <option value="04">Abril</option>
+                <option value="05">Maio</option>
+                <option value="06">Junho</option>
+                <option value="07">Julho</option>
+                <option value="08">Agosto</option>
+                <option value="09">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
+
+              <select id="filtroAno" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="todos">Ano (Todos)</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+              </select>
+            </div>
+
+            <!-- Seletor de Data -->
+            <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
+              <span class="text-xs text-slate-400 px-1.5 font-medium">Dia:</span>
+              <input type="date" id="filtroData" class="bg-transparent text-white text-xs font-semibold focus:outline-none pr-1" />
+            </div>
+
+            <button onclick="abrirModalServico()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+              <i class="ph ph-plus-circle text-base"></i> Novo
+            </button>
+
+            <button onclick="carregarDadosDoGoogleSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Recarregar Planilha">
+              <i class="ph ph-arrows-clockwise text-base"></i>
+            </button>
+
+            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Imprimir">
+              <i class="ph ph-printer text-base"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Cards de KPIs e Navegação Fixos -->
+      <div class="px-4 pt-3 pb-2 space-y-2.5">
+        <div id="gridKPIs" class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Frota Total</p>
+              <h3 id="kpiTotalFrota" class="text-lg md:text-xl font-black text-slate-800">12</h3>
+            </div>
+            <span class="p-1.5 bg-slate-100 rounded-lg text-slate-600 text-base"><i class="ph ph-truck"></i></span>
           </div>
 
-          <button onclick="abrirModalServico()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
-            <i class="ph ph-plus-circle text-base"></i> Novo
-          </button>
+          <div class="bg-white p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider font-bold text-emerald-600">Disponíveis</p>
+              <h3 id="kpiDisponivel" class="text-lg md:text-xl font-black text-emerald-700">0</h3>
+            </div>
+            <span class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg text-base"><i class="ph ph-check-circle"></i></span>
+          </div>
 
-          <button onclick="carregarDadosDoGoogleSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Recarregar Planilha">
-            <i class="ph ph-arrows-clockwise text-base"></i>
-          </button>
+          <div class="bg-white p-2.5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider font-bold text-blue-600">Em Atendimento</p>
+              <h3 id="kpiEmServico" class="text-lg md:text-xl font-black text-blue-700">0</h3>
+            </div>
+            <span class="p-1.5 bg-blue-100 text-blue-600 rounded-lg text-base"><i class="ph ph-steering-wheel"></i></span>
+          </div>
 
-          <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Imprimir">
-            <i class="ph ph-printer text-base"></i>
-          </button>
+          <div class="bg-white p-2.5 rounded-xl border border-rose-200 bg-rose-50/20 shadow-sm flex items-center justify-between">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider font-bold text-rose-600">Manutenção</p>
+              <h3 id="kpiManutencao" class="text-lg md:text-xl font-black text-rose-700">0</h3>
+            </div>
+            <span class="p-1.5 bg-rose-100 text-rose-600 rounded-lg text-base"><i class="ph ph-wrench"></i></span>
+          </div>
+
+          <div class="bg-white p-2.5 rounded-xl border border-purple-200 bg-purple-50/20 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider font-bold text-purple-600">Agregado</p>
+              <h3 id="kpiAgregado" class="text-lg md:text-xl font-black text-purple-700">0</h3>
+            </div>
+            <span class="p-1.5 bg-purple-100 text-purple-600 rounded-lg text-base"><i class="ph ph-handshake"></i></span>
+          </div>
         </div>
-      </div>
-    </header>
 
-    <!-- Cards de KPIs e Navegação Fixos -->
-    <div class="max-w-[98%] mx-auto px-2 pt-3 pb-2 space-y-2.5">
-      <div id="gridKPIs" class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
-        <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 pt-2 no-print">
+          <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+            <button id="btnAbaLista" onclick="alternarAba('lista')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm">
+              <i class="ph ph-list-dashes text-sm"></i> Cronograma do Dia
+            </button>
+            <button id="btnAbaVeiculos" onclick="alternarAba('veiculos')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
+              <i class="ph ph-squares-four text-sm"></i> Frota
+            </button>
+            <button id="btnAbaHistorico" onclick="alternarAba('historico')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
+              <i class="ph ph-calendar text-sm"></i> Geral
+            </button>
+          </div>
+
           <div>
-            <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Frota Total</p>
-            <h3 id="kpiTotalFrota" class="text-lg md:text-xl font-black text-slate-800">12</h3>
+            <span id="resumoAtendimentosBadge" class="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i class="ph ph-clock text-blue-600"></i> Carregando...
+            </span>
           </div>
-          <span class="p-1.5 bg-slate-100 rounded-lg text-slate-600 text-base"><i class="ph ph-truck"></i></span>
-        </div>
-
-        <div class="bg-white p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-[10px] uppercase tracking-wider font-bold text-emerald-600">Disponíveis</p>
-            <h3 id="kpiDisponivel" class="text-lg md:text-xl font-black text-emerald-700">0</h3>
-          </div>
-          <span class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg text-base"><i class="ph ph-check-circle"></i></span>
-        </div>
-
-        <div class="bg-white p-2.5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-[10px] uppercase tracking-wider font-bold text-blue-600">Em Atendimento</p>
-            <h3 id="kpiEmServico" class="text-lg md:text-xl font-black text-blue-700">0</h3>
-          </div>
-          <span class="p-1.5 bg-blue-100 text-blue-600 rounded-lg text-base"><i class="ph ph-steering-wheel"></i></span>
-        </div>
-
-        <div class="bg-white p-2.5 rounded-xl border border-rose-200 bg-rose-50/20 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-[10px] uppercase tracking-wider font-bold text-rose-600">Manutenção</p>
-            <h3 id="kpiManutencao" class="text-lg md:text-xl font-black text-rose-700">0</h3>
-          </div>
-          <span class="p-1.5 bg-rose-100 text-rose-600 rounded-lg text-base"><i class="ph ph-wrench"></i></span>
-        </div>
-
-        <div class="bg-white p-2.5 rounded-xl border border-purple-200 bg-purple-50/20 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
-          <div>
-            <p class="text-[10px] uppercase tracking-wider font-bold text-purple-600">Agregado</p>
-            <h3 id="kpiAgregado" class="text-lg md:text-xl font-black text-purple-700">0</h3>
-          </div>
-          <span class="p-1.5 bg-purple-100 text-purple-600 rounded-lg text-base"><i class="ph ph-handshake"></i></span>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 pt-2 no-print">
-        <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-          <button id="btnAbaLista" onclick="alternarAba('lista')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm">
-            <i class="ph ph-list-dashes text-sm"></i> Cronograma do Dia
-          </button>
-          <button id="btnAbaVeiculos" onclick="alternarAba('veiculos')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
-            <i class="ph ph-squares-four text-sm"></i> Frota
-          </button>
-          <button id="btnAbaHistorico" onclick="alternarAba('historico')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
-            <i class="ph ph-calendar text-sm"></i> Geral
-          </button>
-        </div>
-
-        <div>
-          <span id="resumoAtendimentosBadge" class="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
-            <i class="ph ph-clock text-blue-600"></i> Carregando...
-          </span>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- CONTEÚDO PRINCIPAL ROLÁVEL -->
-  <main id="containerPrincipal" class="max-w-[98%] mx-auto px-2 py-4 space-y-4">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main id="containerPrincipal" class="px-4 py-4 space-y-4">
 
-    <!-- MODO 1: CRONOGRAMA DIÁRIO -->
-    <section id="secaoLista" class="space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
-          <div>
-            <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
-              <i class="ph ph-calendar-check text-blue-600"></i> Agendamentos: 
-              <span id="dataTituloLista" class="text-blue-600 font-black"></span>
-            </h3>
-          </div>
-          <div class="w-full md:w-64">
-            <div class="relative">
-              <i class="ph ph-magnifying-glass absolute left-3 top-2 text-slate-400"></i>
-              <input type="text" id="filtroTexto" oninput="renderizarListaDoDia()" placeholder="Buscar cliente, placa, motorista..." class="w-full pl-8 pr-3 py-1 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-white" />
+      <!-- MODO 1: CRONOGRAMA DIÁRIO -->
+      <section id="secaoLista" class="space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                <i class="ph ph-calendar-check text-blue-600"></i> Agendamentos: 
+                <span id="dataTituloLista" class="text-blue-600 font-black"></span>
+              </h3>
+            </div>
+            <div class="w-full md:w-64">
+              <div class="relative">
+                <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+                <input type="text" id="filtroTexto" oninput="renderizarListaDoDia()" placeholder="Buscar cliente, placa, motorista..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-white" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="w-full overflow-x-auto">
-          <table class="tabela-fluida text-left text-xs">
-            <thead>
-              <tr class="bg-slate-100/70 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
-                <th class="py-2.5 px-3 sem-quebra">Horário</th>
-                <th class="py-2.5 px-3 sem-quebra">Veículo</th>
-                <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
-                <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
-                <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
-                <th class="py-2.5 px-3 min-w-[140px]">Status</th>
-                <th class="py-2.5 px-3 sem-quebra">Valor</th>
-                <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
-                <th class="py-2.5 px-2 sem-quebra text-center no-print min-w-[70px]">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="corpoTabelaDia" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-
-        <div id="msgVazioLista" class="text-center py-10 hidden">
-          <div class="p-3 bg-slate-100 rounded-full inline-block text-slate-400 mb-2">
-            <i class="ph ph-calendar-x text-2xl"></i>
+          <div class="w-full overflow-x-auto">
+            <table class="tabela-fluida text-left text-xs">
+              <thead>
+                <tr class="bg-slate-100/70 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
+                  <th class="py-2.5 px-3 sem-quebra">Horário</th>
+                  <th class="py-2.5 px-3 sem-quebra">Veículo</th>
+                  <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
+                  <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
+                  <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
+                  <th class="py-2.5 px-3 min-w-[140px]">Status</th>
+                  <th class="py-2.5 px-3 sem-quebra">Valor</th>
+                  <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
+                  <th class="py-2.5 px-2 sem-quebra text-center no-print min-w-[70px]">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpoTabelaDia" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
-          <h4 class="font-bold text-slate-700 text-sm">Nenhum serviço agendado para esta data</h4>
-          <p class="text-xs text-slate-400 mt-1">Clique em "+ Novo" para adicionar uma ordem.</p>
-        </div>
-      </div>
-    </section>
 
-    <!-- MODO 2: VISÃO POR VEÍCULO -->
-    <section id="secaoVeiculos" class="space-y-4 hidden">
-      <div id="gridVeiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </section>
-
-    <!-- MODO 3: HISTÓRICO GERAL -->
-    <section id="secaoHistorico" class="space-y-4 hidden">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-          <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-            <i class="ph ph-database text-blue-600"></i> Todos os Agendamentos da Planilha
-          </h3>
-          <span id="contagemGeralBadge" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full"></span>
+          <div id="msgVazioLista" class="text-center py-10 hidden">
+            <div class="p-3 bg-slate-100 rounded-full inline-block text-slate-400 mb-2">
+              <i class="ph ph-calendar-x text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-slate-700 text-sm">Nenhum serviço agendado para esta data</h4>
+            <p class="text-xs text-slate-400 mt-1">Clique em "+ Novo" para adicionar uma ordem.</p>
+          </div>
         </div>
+      </section>
 
-        <div class="w-full overflow-x-auto">
-          <table class="tabela-fluida text-left text-xs">
-            <thead>
-              <tr class="bg-slate-100/70 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
-                <th class="py-2.5 px-3 sem-quebra">Data</th>
-                <th class="py-2.5 px-3 sem-quebra">Horário</th>
-                <th class="py-2.5 px-3 sem-quebra">Veículo</th>
-                <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
-                <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
-                <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
-                <th class="py-2.5 px-3 min-w-[100px]">Status</th>
-                <th class="py-2.5 px-3 sem-quebra">Valor</th>
-                <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
-                <th class="py-2.5 px-2 sem-quebra text-center no-print min-w-[70px]">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="corpoTabelaHistorico" class="divide-y divide-slate-100"></tbody>
-          </table>
+      <!-- MODO 2: VISÃO POR VEÍCULO -->
+      <section id="secaoVeiculos" class="space-y-4 hidden">
+        <div id="gridVeiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- MODO 3: HISTÓRICO GERAL -->
+      <section id="secaoHistorico" class="space-y-4 hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+              <i class="ph ph-database text-blue-600"></i> Todos os Agendamentos da Planilha
+            </h3>
+            <span id="contagemGeralBadge" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full"></span>
+          </div>
+
+          <div class="w-full overflow-x-auto">
+            <table class="tabela-fluida text-left text-xs">
+              <thead>
+                <tr class="bg-slate-100/70 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
+                  <th class="py-2.5 px-3 sem-quebra">Data</th>
+                  <th class="py-2.5 px-3 sem-quebra">Horário</th>
+                  <th class="py-2.5 px-3 sem-quebra">Veículo</th>
+                  <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
+                  <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
+                  <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
+                  <th class="py-2.5 px-3 min-w-[100px]">Status</th>
+                  <th class="py-2.5 px-3 sem-quebra">Valor</th>
+                  <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
+                  <th class="py-2.5 px-2 sem-quebra text-center no-print min-w-[70px]">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpoTabelaHistorico" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <!-- MODAL DE NOVO / EDITAR SERVIÇO -->
   <div id="modalServico" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
