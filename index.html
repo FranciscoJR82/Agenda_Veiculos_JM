@@ -52,17 +52,18 @@
 </head>
 <body id="corpoPagina" class="bg-slate-100 text-slate-800 min-h-screen">
 
-  <!-- BANNER COMPLETO SEM CORTAR O TEXTO INFERIOR -->
-  <div class="w-full bg-slate-950 flex justify-center border-b border-slate-800 overflow-hidden">
+  <!-- BANNER ENCAIXADO DE PONTA A PONTA (SEM BORDAS LATERAIS) -->
+  <div class="w-full overflow-hidden bg-slate-900 leading-none">
     <img 
       src="banner_jm.jpg" 
       alt="JM Ambiental - Gestão de Frota e Agenda" 
-      class="w-full max-w-7xl h-auto object-contain block mx-auto"
+      class="w-full h-auto block m-0 p-0"
+      style="display: block; width: 100%; max-height: 220px; object-fit: cover; object-position: center bottom;"
       onerror="this.style.display='none'"
     />
   </div>
 
-  <!-- BLOCO FIXO / CONGELADO AO ROLAR A PÁGINA (FOTO 01) -->
+  <!-- BLOCO FIXO / CONGELADO AO ROLAR A PÁGINA -->
   <div class="painel-fixo border-b border-slate-200">
     <!-- Barra de Controles e Filtros -->
     <header class="bg-slate-900 text-white shadow-md">
@@ -191,7 +192,7 @@
   <!-- CONTEÚDO PRINCIPAL ROLÁVEL -->
   <main id="containerPrincipal" class="max-w-[98%] mx-auto px-2 py-4 space-y-4">
 
-    <!-- MODO 1: CRONOGRAMA DIÁRIO (FOTO 03 - COLUNAS FLUIDAS SEM EMPILHAR LETRAS) -->
+    <!-- MODO 1: CRONOGRAMA DIÁRIO -->
     <section id="secaoLista" class="space-y-4">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
