@@ -13,6 +13,7 @@
       .no-print { display: none !important; }
       body { background: white !important; }
       .print-shadow-none { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+      .painel-fixo { position: static !important; }
     }
     .linha-cancelada {
       background-color: #fef2f2 !important;
@@ -25,161 +26,172 @@
       text-decoration: line-through;
       opacity: 0.75;
     }
-    /* Estilização para garantir ajuste de largura sem scroll horizontal forçado */
-    .tabela-ajustada {
-      table-layout: fixed;
-      width: 100%;
+    /* Estilização para fixar o topo no scroll */
+    .painel-fixo {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background-color: #f1f5f9;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
     }
-    .quebra-texto {
-      word-wrap: break-word;
+    /* Tabela fluida sem quebra de letras empilhadas */
+    .tabela-fluida {
+      width: 100%;
+      table-layout: auto;
+      border-collapse: collapse;
+    }
+    .tabela-fluida th, .tabela-fluida td {
       white-space: normal;
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+    .sem-quebra {
+      white-space: nowrap !important;
     }
   </style>
 </head>
 <body id="corpoPagina" class="bg-slate-100 text-slate-800 min-h-screen">
 
-  <!-- CABEÇALHO COM IDENTIDADE VISUAL JM AMBIENTAL -->
-  <header class="bg-slate-900 shadow-xl sticky top-0 z-30">
-    <!-- Banner Oficial -->
-    <div class="w-full bg-slate-950 flex justify-center border-b border-slate-800/80 overflow-hidden">
-      <img 
-        src="banner_jm.jpg" 
-        alt="JM Ambiental - Gestão de Frota e Agenda" 
-        class="w-full max-h-32 md:max-h-44 object-cover object-center shadow-inner"
-        onerror="this.style.display='none'"
-      />
-    </div>
+  <!-- BANNER COMPLETO SEM CORTAR O TEXTO INFERIOR -->
+  <div class="w-full bg-slate-950 flex justify-center border-b border-slate-800 overflow-hidden">
+    <img 
+      src="banner_jm.jpg" 
+      alt="JM Ambiental - Gestão de Frota e Agenda" 
+      class="w-full max-w-7xl h-auto object-contain block mx-auto"
+      onerror="this.style.display='none'"
+    />
+  </div>
 
-    <!-- Barra Operacional Integrada -->
-    <div class="max-w-[98%] mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2.5 text-white">
-      <div class="flex items-center gap-2">
-        <span id="badgeConexao" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer" onclick="carregarDadosDoGoogleSheets()" title="Clique para sincronizar">
-          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...
-        </span>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2 no-print">
-        <!-- Filtro Rápido de Mês e Ano (Substitui Modo Celular) -->
-        <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 gap-1">
-          <span class="text-xs text-slate-400 px-1 font-medium"><i class="ph ph-funnel"></i> Período:</span>
-          <select id="filtroMes" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
-            <option value="todos">Mês (Todos)</option>
-            <option value="01">Janeiro</option>
-            <option value="02">Fevereiro</option>
-            <option value="03">Março</option>
-            <option value="04">Abril</option>
-            <option value="05">Maio</option>
-            <option value="06">Junho</option>
-            <option value="07">Julho</option>
-            <option value="08">Agosto</option>
-            <option value="09">Setembro</option>
-            <option value="10">Outubro</option>
-            <option value="11">Novembro</option>
-            <option value="12">Dezembro</option>
-          </select>
-
-          <select id="filtroAno" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
-            <option value="todos">Ano (Todos)</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-          </select>
+  <!-- BLOCO FIXO / CONGELADO AO ROLAR A PÁGINA (FOTO 01) -->
+  <div class="painel-fixo border-b border-slate-200">
+    <!-- Barra de Controles e Filtros -->
+    <header class="bg-slate-900 text-white shadow-md">
+      <div class="max-w-[98%] mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2">
+          <span id="badgeConexao" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer" onclick="carregarDadosDoGoogleSheets()" title="Clique para sincronizar">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...
+          </span>
         </div>
 
-        <!-- Seletor de Data Específica -->
-        <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
-          <span class="text-xs text-slate-400 px-1.5 font-medium">Dia:</span>
-          <input type="date" id="filtroData" class="bg-transparent text-white text-xs font-semibold focus:outline-none pr-1" />
+        <div class="flex flex-wrap items-center gap-2 no-print">
+          <!-- Filtro de Período -->
+          <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 gap-1">
+            <span class="text-xs text-slate-400 px-1 font-medium"><i class="ph ph-funnel"></i> Período:</span>
+            <select id="filtroMes" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <option value="todos">Mês (Todos)</option>
+              <option value="01">Janeiro</option>
+              <option value="02">Fevereiro</option>
+              <option value="03">Março</option>
+              <option value="04">Abril</option>
+              <option value="05">Maio</option>
+              <option value="06">Junho</option>
+              <option value="07">Julho</option>
+              <option value="08">Agosto</option>
+              <option value="09">Setembro</option>
+              <option value="10">Outubro</option>
+              <option value="11">Novembro</option>
+              <option value="12">Dezembro</option>
+            </select>
+
+            <select id="filtroAno" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <option value="todos">Ano (Todos)</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+
+          <!-- Seletor de Data -->
+          <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
+            <span class="text-xs text-slate-400 px-1.5 font-medium">Dia:</span>
+            <input type="date" id="filtroData" class="bg-transparent text-white text-xs font-semibold focus:outline-none pr-1" />
+          </div>
+
+          <button onclick="abrirModalServico()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+            <i class="ph ph-plus-circle text-base"></i> Novo
+          </button>
+
+          <button onclick="carregarDadosDoGoogleSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Recarregar Planilha">
+            <i class="ph ph-arrows-clockwise text-base"></i>
+          </button>
+
+          <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Imprimir">
+            <i class="ph ph-printer text-base"></i>
+          </button>
         </div>
-
-        <!-- Botão Novo Agendamento -->
-        <button onclick="abrirModalServico()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
-          <i class="ph ph-plus-circle text-base"></i> Novo
-        </button>
-
-        <!-- Sincronizar e Imprimir -->
-        <button onclick="carregarDadosDoGoogleSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Recarregar Planilha">
-          <i class="ph ph-arrows-clockwise text-base"></i>
-        </button>
-
-        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Imprimir">
-          <i class="ph ph-printer text-base"></i>
-        </button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main id="containerPrincipal" class="max-w-[98%] mx-auto px-2 py-5 space-y-5">
-
-    <!-- CARDS DE STATUS / KPI DA FROTA -->
-    <section>
-      <div id="gridKPIs" class="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <!-- Cards de KPIs e Navegação Fixos -->
+    <div class="max-w-[98%] mx-auto px-2 pt-3 pb-2 space-y-2.5">
+      <div id="gridKPIs" class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+        <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Frota Total</p>
-            <h3 id="kpiTotalFrota" class="text-xl font-black text-slate-800">12</h3>
+            <h3 id="kpiTotalFrota" class="text-lg md:text-xl font-black text-slate-800">12</h3>
           </div>
-          <span class="p-2 bg-slate-100 rounded-lg text-slate-600 text-lg"><i class="ph ph-truck"></i></span>
+          <span class="p-1.5 bg-slate-100 rounded-lg text-slate-600 text-base"><i class="ph ph-truck"></i></span>
         </div>
 
-        <div class="bg-white p-3 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
           <div>
             <p class="text-[10px] uppercase tracking-wider font-bold text-emerald-600">Disponíveis</p>
-            <h3 id="kpiDisponivel" class="text-xl font-black text-emerald-700">0</h3>
+            <h3 id="kpiDisponivel" class="text-lg md:text-xl font-black text-emerald-700">0</h3>
           </div>
-          <span class="p-2 bg-emerald-100 text-emerald-600 rounded-lg text-lg"><i class="ph ph-check-circle"></i></span>
+          <span class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg text-base"><i class="ph ph-check-circle"></i></span>
         </div>
 
-        <div class="bg-white p-3 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-2.5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
           <div>
             <p class="text-[10px] uppercase tracking-wider font-bold text-blue-600">Em Atendimento</p>
-            <h3 id="kpiEmServico" class="text-xl font-black text-blue-700">0</h3>
+            <h3 id="kpiEmServico" class="text-lg md:text-xl font-black text-blue-700">0</h3>
           </div>
-          <span class="p-2 bg-blue-100 text-blue-600 rounded-lg text-lg"><i class="ph ph-steering-wheel"></i></span>
+          <span class="p-1.5 bg-blue-100 text-blue-600 rounded-lg text-base"><i class="ph ph-steering-wheel"></i></span>
         </div>
 
-        <div class="bg-white p-3 rounded-xl border border-rose-200 bg-rose-50/20 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-2.5 rounded-xl border border-rose-200 bg-rose-50/20 shadow-sm flex items-center justify-between">
           <div>
             <p class="text-[10px] uppercase tracking-wider font-bold text-rose-600">Manutenção</p>
-            <h3 id="kpiManutencao" class="text-xl font-black text-rose-700">0</h3>
+            <h3 id="kpiManutencao" class="text-lg md:text-xl font-black text-rose-700">0</h3>
           </div>
-          <span class="p-2 bg-rose-100 text-rose-600 rounded-lg text-lg"><i class="ph ph-wrench"></i></span>
+          <span class="p-1.5 bg-rose-100 text-rose-600 rounded-lg text-base"><i class="ph ph-wrench"></i></span>
         </div>
 
-        <div class="bg-white p-3 rounded-xl border border-purple-200 bg-purple-50/20 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
+        <div class="bg-white p-2.5 rounded-xl border border-purple-200 bg-purple-50/20 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
           <div>
             <p class="text-[10px] uppercase tracking-wider font-bold text-purple-600">Agregado</p>
-            <h3 id="kpiAgregado" class="text-xl font-black text-purple-700">0</h3>
+            <h3 id="kpiAgregado" class="text-lg md:text-xl font-black text-purple-700">0</h3>
           </div>
-          <span class="p-2 bg-purple-100 text-purple-600 rounded-lg text-lg"><i class="ph ph-handshake"></i></span>
+          <span class="p-1.5 bg-purple-100 text-purple-600 rounded-lg text-base"><i class="ph ph-handshake"></i></span>
         </div>
       </div>
-    </section>
 
-    <!-- NAVEGAÇÃO ENTRE ABAS -->
-    <section class="no-print">
-      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 pt-2 no-print">
         <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-          <button id="btnAbaLista" onclick="alternarAba('lista')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm">
-            <i class="ph ph-list-dashes text-base"></i> Cronograma do Dia
+          <button id="btnAbaLista" onclick="alternarAba('lista')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm">
+            <i class="ph ph-list-dashes text-sm"></i> Cronograma do Dia
           </button>
-          <button id="btnAbaVeiculos" onclick="alternarAba('veiculos')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
-            <i class="ph ph-squares-four text-base"></i> Frota
+          <button id="btnAbaVeiculos" onclick="alternarAba('veiculos')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
+            <i class="ph ph-squares-four text-sm"></i> Frota
           </button>
-          <button id="btnAbaHistorico" onclick="alternarAba('historico')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
-            <i class="ph ph-calendar text-base"></i> Geral
+          <button id="btnAbaHistorico" onclick="alternarAba('historico')" class="px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900">
+            <i class="ph ph-calendar text-sm"></i> Geral
           </button>
         </div>
 
         <div>
-          <span id="resumoAtendimentosBadge" class="text-xs font-bold text-slate-600 bg-slate-200/70 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <span id="resumoAtendimentosBadge" class="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
             <i class="ph ph-clock text-blue-600"></i> Carregando...
           </span>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- MODO 1: CRONOGRAMA DIÁRIO (SEM ROLAGEM HORIZONTAL) -->
+  <!-- CONTEÚDO PRINCIPAL ROLÁVEL -->
+  <main id="containerPrincipal" class="max-w-[98%] mx-auto px-2 py-4 space-y-4">
+
+    <!-- MODO 1: CRONOGRAMA DIÁRIO (FOTO 03 - COLUNAS FLUIDAS SEM EMPILHAR LETRAS) -->
     <section id="secaoLista" class="space-y-4">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
@@ -197,19 +209,19 @@
           </div>
         </div>
 
-        <div class="w-full">
-          <table class="tabela-ajustada text-left border-collapse text-xs">
+        <div class="w-full overflow-x-auto">
+          <table class="tabela-fluida text-left text-xs">
             <thead>
               <tr class="bg-slate-100/70 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
-                <th class="py-2.5 px-2 w-[70px]">Horário</th>
-                <th class="py-2.5 px-2 w-[115px]">Veículo</th>
-                <th class="py-2.5 px-2 w-[150px]">Equipe</th>
-                <th class="py-2.5 px-2 w-[22%]">Cliente / Local</th>
-                <th class="py-2.5 px-2 w-[130px]">Serviço</th>
-                <th class="py-2.5 px-2 w-[140px]">Status</th>
-                <th class="py-2.5 px-2 w-[90px]">Valor</th>
-                <th class="py-2.5 px-2">Obs</th>
-                <th class="py-2.5 px-1.5 w-[60px] text-center no-print">Ações</th>
+                <th class="py-2.5 px-3 sem-quebra">Horário</th>
+                <th class="py-2.5 px-3 sem-quebra">Veículo</th>
+                <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
+                <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
+                <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
+                <th class="py-2.5 px-3 min-w-[140px]">Status</th>
+                <th class="py-2.5 px-3 sem-quebra">Valor</th>
+                <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
+                <th class="py-2.5 px-2 sem-quebra text-center no-print min-w-[70px]">Ações</th>
               </tr>
             </thead>
             <tbody id="corpoTabelaDia" class="divide-y divide-slate-100"></tbody>
@@ -231,7 +243,7 @@
       <div id="gridVeiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
-    <!-- MODO 3: HISTÓRICO GERAL (COM COLUNA OBS) -->
+    <!-- MODO 3: HISTÓRICO GERAL -->
     <section id="secaoHistorico" class="space-y-4 hidden">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
@@ -241,20 +253,20 @@
           <span id="contagemGeralBadge" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full"></span>
         </div>
 
-        <div class="w-full">
-          <table class="tabela-ajustada text-left border-collapse text-xs">
+        <div class="w-full overflow-x-auto">
+          <table class="tabela-fluida text-left text-xs">
             <thead>
               <tr class="bg-slate-100/70 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
-                <th class="py-2.5 px-2 w-[85px]">Data</th>
-                <th class="py-2.5 px-2 w-[65px]">Horário</th>
-                <th class="py-2.5 px-2 w-[100px]">Veículo</th>
-                <th class="py-2.5 px-2 w-[140px]">Equipe</th>
-                <th class="py-2.5 px-2 w-[20%]">Cliente / Local</th>
-                <th class="py-2.5 px-2 w-[130px]">Serviço</th>
-                <th class="py-2.5 px-2 w-[100px]">Status</th>
-                <th class="py-2.5 px-2 w-[85px]">Valor</th>
-                <th class="py-2.5 px-2">Obs</th>
-                <th class="py-2.5 px-1.5 w-[55px] text-center no-print">Ações</th>
+                <th class="py-2.5 px-3 sem-quebra">Data</th>
+                <th class="py-2.5 px-3 sem-quebra">Horário</th>
+                <th class="py-2.5 px-3 sem-quebra">Veículo</th>
+                <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
+                <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
+                <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
+                <th class="py-2.5 px-3 min-w-[100px]">Status</th>
+                <th class="py-2.5 px-3 sem-quebra">Valor</th>
+                <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
+                <th class="py-2.5 px-2 sem-quebra text-center no-print min-w-[70px]">Ações</th>
               </tr>
             </thead>
             <tbody id="corpoTabelaHistorico" class="divide-y divide-slate-100"></tbody>
@@ -371,7 +383,6 @@
       const mes = document.getElementById("filtroMes").value;
       const ano = document.getElementById("filtroAno").value;
 
-      // Se ambos tiverem sido escolhidos (diferente de 'todos'), atualiza o campo de data para o 1º dia do mês
       if (mes !== "todos" && ano !== "todos") {
         document.getElementById("filtroData").value = `${ano}-${mes}-01`;
       }
@@ -448,10 +459,10 @@
         const btn = document.getElementById("btnAba" + a.charAt(0).toUpperCase() + a.slice(1));
         if (a === aba) {
           el.classList.remove("hidden");
-          btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm";
+          btn.className = "px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-sm";
         } else {
           el.classList.add("hidden");
-          btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900";
+          btn.className = "px-3.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition text-slate-600 hover:text-slate-900";
         }
       });
       renderizarTudo();
@@ -624,27 +635,27 @@
 
         return `
           <tr class="${isCancelado ? 'linha-cancelada' : 'hover:bg-slate-50'} transition border-b border-slate-100">
-            <td class="py-2.5 px-2 font-black whitespace-nowrap">
-              <span class="${isCancelado ? 'bg-rose-100 border border-rose-300 text-rose-800' : 'bg-blue-50 border border-blue-200 text-blue-700'} px-1.5 py-0.5 rounded text-[11px]">
+            <td class="py-2.5 px-3 font-black sem-quebra">
+              <span class="${isCancelado ? 'bg-rose-100 border border-rose-300 text-rose-800' : 'bg-blue-50 border border-blue-200 text-blue-700'} px-2 py-0.5 rounded text-[11px]">
                 ${s.hora}h
               </span>
             </td>
-            <td class="py-2.5 px-2">
-              <div class="flex items-center gap-1">
-                <span class="font-bold text-slate-800 whitespace-nowrap ${isCancelado ? 'texto-riscado' : ''}">${s.veiculo}</span>
-                <span class="text-[9px] px-1 py-0.2 rounded font-semibold ${tipoBadge}">${vInfo.tipo === 'Água Potável' ? 'Água' : 'Res.'}</span>
+            <td class="py-2.5 px-3 sem-quebra">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-slate-800 ${isCancelado ? 'texto-riscado' : ''}">${s.veiculo}</span>
+                <span class="text-[9px] px-1.5 py-0.2 rounded font-semibold ${tipoBadge}">${vInfo.tipo === 'Água Potável' ? 'Água' : 'Res.'}</span>
               </div>
             </td>
-            <td class="py-2.5 px-2 quebra-texto font-medium text-slate-700">
+            <td class="py-2.5 px-3 font-medium text-slate-700">
               <span class="${isCancelado ? 'texto-riscado' : ''}"><b>${s.motorista}</b>${s.ajudante ? ' <span class="text-slate-500 font-normal">(' + s.ajudante + ')</span>' : ''}</span>
             </td>
-            <td class="py-2.5 px-2 quebra-texto font-bold text-slate-900">
+            <td class="py-2.5 px-3 font-bold text-slate-900">
               <span class="${isCancelado ? 'texto-riscado' : ''}">${s.cliente}</span>
             </td>
-            <td class="py-2.5 px-2 quebra-texto text-[11px] font-semibold text-slate-600">${s.tipoServico}</td>
+            <td class="py-2.5 px-3 text-[11px] font-semibold text-slate-600">${s.tipoServico}</td>
             
-            <td class="py-2.5 px-2 whitespace-nowrap">
-              <select onchange="atualizarStatusServico('${s.linha || ''}', '${s.id}', this.value)" class="text-[11px] px-1.5 py-1 rounded-md border focus:outline-none cursor-pointer w-full ${statusColors}">
+            <td class="py-2.5 px-3 sem-quebra">
+              <select onchange="atualizarStatusServico('${s.linha || ''}', '${s.id}', this.value)" class="text-[11px] px-2 py-1 rounded-md border focus:outline-none cursor-pointer w-full ${statusColors}">
                 <option value="Agendado" ${s.status === 'Agendado' ? 'selected' : ''}>⏳ Agendado</option>
                 <option value="Em deslocamento" ${s.status === 'Em deslocamento' ? 'selected' : ''}>🚚 Em deslocamento</option>
                 <option value="No Local" ${s.status === 'No Local' ? 'selected' : ''}>📍 No Local</option>
@@ -653,18 +664,18 @@
               </select>
             </td>
 
-            <td class="py-2.5 px-2 font-bold ${isCancelado ? 'text-rose-800 texto-riscado' : 'text-emerald-700'} whitespace-nowrap">
+            <td class="py-2.5 px-3 font-bold ${isCancelado ? 'text-rose-800 texto-riscado' : 'text-emerald-700'} sem-quebra">
               ${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}
             </td>
-            <td class="py-2.5 px-2 quebra-texto text-[11px] text-slate-500" title="${s.obs || ''}">
+            <td class="py-2.5 px-3 text-[11px] text-slate-500" title="${s.obs || ''}">
               ${isCancelado ? '<b class="text-rose-700">[CANCELADO]</b> ' : ''}${s.obs || '-'}
             </td>
-            <td class="py-2.5 px-1.5 text-center whitespace-nowrap no-print">
-              <div class="flex items-center justify-center gap-1">
-                <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1 rounded transition" title="Editar">
+            <td class="py-2.5 px-2 text-center sem-quebra no-print">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1.5 rounded transition" title="Editar">
                   <i class="ph ph-pencil-simple text-sm"></i>
                 </button>
-                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded transition" title="Excluir">
+                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition" title="Excluir">
                   <i class="ph ph-trash text-sm"></i>
                 </button>
               </div>
@@ -681,7 +692,6 @@
 
       let filtrados = [...agendamentos];
 
-      // Aplicar filtros de Ano e Mês
       if (filtroAno !== "todos") {
         filtrados = filtrados.filter(s => (s.data || "").startsWith(filtroAno));
       }
@@ -705,21 +715,21 @@
         const isCancelado = s.status === "Cancelado";
         return `
           <tr class="${isCancelado ? 'linha-cancelada' : 'hover:bg-slate-50'} transition border-b border-slate-100">
-            <td class="py-2 px-2 font-semibold text-slate-700 whitespace-nowrap">${formatarDataBR(s.data)}</td>
-            <td class="py-2 px-2 font-bold text-blue-600 whitespace-nowrap">${s.hora}h</td>
-            <td class="py-2 px-2 font-bold text-slate-800 whitespace-nowrap">${s.veiculo}</td>
-            <td class="py-2 px-2 quebra-texto text-slate-600"><b>${s.motorista}</b>${s.ajudante ? ' <span class="text-slate-500 font-normal">(' + s.ajudante + ')</span>' : ''}</td>
-            <td class="py-2 px-2 quebra-texto font-semibold text-slate-900">${s.cliente}</td>
-            <td class="py-2 px-2 quebra-texto text-slate-600">${s.tipoServico}</td>
-            <td class="py-2 px-2 font-bold whitespace-nowrap">${s.status || 'Agendado'}</td>
-            <td class="py-2 px-2 font-bold text-emerald-700 whitespace-nowrap">${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}</td>
-            <td class="py-2 px-2 quebra-texto text-slate-500" title="${s.obs || ''}">${s.obs || '-'}</td>
-            <td class="py-2 px-1 text-center no-print whitespace-nowrap">
-              <div class="flex items-center justify-center gap-1">
-                <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 p-0.5" title="Editar">
+            <td class="py-2.5 px-3 font-semibold text-slate-700 sem-quebra">${formatarDataBR(s.data)}</td>
+            <td class="py-2.5 px-3 font-bold text-blue-600 sem-quebra">${s.hora}h</td>
+            <td class="py-2.5 px-3 font-bold text-slate-800 sem-quebra">${s.veiculo}</td>
+            <td class="py-2.5 px-3 text-slate-600"><b>${s.motorista}</b>${s.ajudante ? ' <span class="text-slate-500 font-normal">(' + s.ajudante + ')</span>' : ''}</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-900">${s.cliente}</td>
+            <td class="py-2.5 px-3 text-slate-600">${s.tipoServico}</td>
+            <td class="py-2.5 px-3 font-bold sem-quebra">${s.status || 'Agendado'}</td>
+            <td class="py-2.5 px-3 font-bold text-emerald-700 sem-quebra">${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}</td>
+            <td class="py-2.5 px-3 text-slate-500" title="${s.obs || ''}">${s.obs || '-'}</td>
+            <td class="py-2.5 px-2 text-center no-print sem-quebra">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 p-1" title="Editar">
                   <i class="ph ph-pencil-simple text-sm"></i>
                 </button>
-                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 p-0.5" title="Excluir">
+                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 p-1" title="Excluir">
                   <i class="ph ph-trash text-sm"></i>
                 </button>
               </div>
