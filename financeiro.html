@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JM Ambiental - Intelligence & Financial Dashboard</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #050811;
+    }
+
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Efeito de Vidro Futurista */
+    .glass-card {
+      background: rgba(13, 20, 36, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.12);
+    }
+    .glass-card:hover {
+      border-color: rgba(56, 189, 248, 0.32);
+      box-shadow: 0 10px 30px -10px rgba(14, 165, 233, 0.15);
+    }
+
+    /* Brilhos e Gradientes Neon */
+    .glow-cyan {
+      box-shadow: 0 0 25px -4px rgba(6, 182, 212, 0.35);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -4px rgba(16, 185, 129, 0.35);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090e1a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #38bdf8;
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-black">
+
+  <!-- BANNER IDENTIDADE VISUAL -->
+  <div class="w-full bg-black/90 border-b border-cyan-950/60 overflow-hidden flex justify-center shadow-2xl">
+    <img 
+      src="banner_jm.jpg" 
+      alt="JM Ambiental" 
+      class="w-full max-w-7xl h-auto block select-none max-h-40 object-cover object-bottom"
+      onerror="this.style.display='none'"
+    />
+  </div>
+
+  <!-- NAVEGAÇÃO E CONTROLES SUPERIORES -->
+  <header class="sticky top-0 z-30 bg-[#090d1a]/90 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Título e Badge -->
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg glow-cyan">
+          <i class="ph ph-chart-line-up text-xl font-bold"></i>
+        </div>
+        <div>
+          <h1 class="text-base md:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            Financeiro & Faturamento
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">Analytics</span>
+          </h1>
+          <p class="text-xs text-slate-400">Controle Estratégico de Receita • JM Ambiental</p>
+        </div>
+      </div>
+
+      <!-- Filtros e Ações -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Status de Sincronização -->
+        <span id="badgeStatus" class="text-xs px-2.5 py-1 rounded-lg font-mono-num font-semibold bg-cyan-950/40 text-cyan-300 border border-cyan-800/40 flex items-center gap-1.5 cursor-pointer" onclick="carregarDados()" title="Sincronizar Dados">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Sincronizando...
+        </span>
+
+        <!-- Seletor de Período -->
+        <div class="flex items-center bg-slate-900/90 rounded-xl p-1 border border-slate-800 shadow-inner gap-1">
+          <i class="ph ph-calendar-blank text-slate-400 pl-1.5 text-sm"></i>
+          <select id="filtroMes" onchange="renderizarDashboard()" class="bg-transparent text-white text-xs font-semibold rounded px-2 py-1 focus:outline-none cursor-pointer">
+            <option value="todos" class="bg-slate-900">Ano Completo</option>
+            <option value="01" class="bg-slate-900">01 - Janeiro</option>
+            <option value="02" class="bg-slate-900">02 - Fevereiro</option>
+            <option value="03" class="bg-slate-900">03 - Março</option>
+            <option value="04" class="bg-slate-900">04 - Abril</option>
+            <option value="05" class="bg-slate-900">05 - Maio</option>
+            <option value="06" class="bg-slate-900">06 - Junho</option>
+            <option value="07" class="bg-slate-900">07 - Julho</option>
+            <option value="08" class="bg-slate-900">08 - Agosto</option>
+            <option value="09" class="bg-slate-900">09 - Setembro</option>
+            <option value="10" class="bg-slate-900">10 - Outubro</option>
+            <option value="11" class="bg-slate-900">11 - Novembro</option>
+            <option value="12" class="bg-slate-900">12 - Dezembro</option>
+          </select>
+
+          <select id="filtroAno" onchange="renderizarDashboard()" class="bg-transparent text-cyan-400 text-xs font-bold rounded px-2 py-1 focus:outline-none cursor-pointer">
+            <option value="2026" class="bg-slate-900">2026</option>
+            <option value="2027" class="bg-slate-900">2027</option>
+            <option value="2028" class="bg-slate-900">2028</option>
+          </select>
+        </div>
+
+        <!-- Recarregar -->
+        <button onclick="carregarDados()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2 rounded-xl border border-slate-800 transition" title="Atualizar Dados">
+          <i class="ph ph-arrows-clockwise text-base"></i>
+        </button>
+
+        <!-- Link para Agenda Operacional -->
+        <a href="index.html" class="bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 px-3 py-1.5 rounded-xl border border-cyan-800/40 text-xs font-semibold flex items-center gap-1.5 transition">
+          <i class="ph ph-calendar-check text-base"></i>
+          <span>Agenda Frota</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CORPO PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- CARD PRINCIPAL: META MENSAL & PROGRESSO EXECUTIVO -->
+    <section class="glass-card rounded-2xl p-5 border border-cyan-500/20 relative overflow-hidden">
+      <!-- Glow Decorativo de Fundo -->
+      <div class="absolute -right-20 -top-20 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+              <i class="ph ph-target text-base"></i> Desempenho Operacional vs. Meta
+            </span>
+            <div class="flex items-baseline gap-2 mt-1">
+              <h2 id="valorFaturadoTotal" class="text-2xl md:text-4xl font-extrabold text-white font-mono-num tracking-tight">R$ 0,00</h2>
+              <span class="text-xs md:text-sm text-slate-400 font-medium">realizados</span>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <span class="text-xs text-slate-400">Meta Estabelecida</span>
+            <p id="valorMetaDisplay" class="text-lg md:text-2xl font-bold text-slate-200 font-mono-num">R$ 350.000,00</p>
+            <span id="badgeDiferencaMeta" class="text-[11px] font-semibold text-slate-400">Faltam R$ 350.000,00</span>
+          </div>
+        </div>
+
+        <!-- Barra de Progresso Neon -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs font-mono-num">
+            <span class="text-slate-400">Atingimento da Meta</span>
+            <span id="porcentagemMetaTexto" class="text-cyan-400 font-bold text-sm">0.0%</span>
+          </div>
+          <div class="w-full bg-slate-900/90 rounded-full h-3 p-0.5 border border-slate-800 overflow-hidden">
+            <div id="barraProgressoMeta" class="h-full rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-400 transition-all duration-700 shadow-sm" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID DE CARDS KPIs -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Card 1: Pipeline em Aberto -->
+      <div class="glass-card rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] uppercase font-bold text-amber-400 tracking-wider">Pipeline em Aberto</span>
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <i class="ph ph-hourglass-high text-lg"></i>
+          </div>
+        </div>
+        <h3 id="kpiPipelineAberto" class="text-xl md:text-2xl font-bold font-mono-num text-white mt-2">R$ 0,00</h3>
+        <p id="kpiQtdAberto" class="text-xs text-slate-400 mt-1">0 ordens em rota / agendadas</p>
+      </div>
+
+      <!-- Card 2: Ticket Médio - Resíduo -->
+      <div class="glass-card rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] uppercase font-bold text-blue-400 tracking-wider">Ticket Médio • Resíduo</span>
+          <div class="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <i class="ph ph-drop text-lg"></i>
+          </div>
+        </div>
+        <h3 id="kpiTicketResiduo" class="text-xl md:text-2xl font-bold font-mono-num text-white mt-2">R$ 0,00</h3>
+        <p id="kpiQtdResiduo" class="text-xs text-slate-400 mt-1">0 atendimentos concluídos</p>
+      </div>
+
+      <!-- Card 3: Ticket Médio - Água Potável -->
+      <div class="glass-card rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] uppercase font-bold text-cyan-400 tracking-wider">Ticket Médio • Água</span>
+          <div class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <i class="ph ph-waves text-lg"></i>
+          </div>
+        </div>
+        <h3 id="kpiTicketAgua" class="text-xl md:text-2xl font-bold font-mono-num text-white mt-2">R$ 0,00</h3>
+        <p id="kpiQtdAgua" class="text-xs text-slate-400 mt-1">0 atendimentos concluídos</p>
+      </div>
+
+      <!-- Card 4: Cancelamentos / Perda -->
+      <div class="glass-card rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] uppercase font-bold text-rose-400 tracking-wider">Cancelados / Perda</span>
+          <div class="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+            <i class="ph ph-x-circle text-lg"></i>
+          </div>
+        </div>
+        <h3 id="kpiPerdaCancelado" class="text-xl md:text-2xl font-bold font-mono-num text-rose-400 mt-2">R$ 0,00</h3>
+        <p id="kpiQtdCancelado" class="text-xs text-slate-400 mt-1">0 serviços cancelados</p>
+      </div>
+
+    </section>
+
+    <!-- GRÁFICOS: EVOLUÇÃO TEMPORAL & CATEGORIA -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Gráfico 1: Evolução da Receita (2 Colunas) -->
+      <div class="glass-card rounded-2xl p-5 lg:col-span-2 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="ph ph-trend-up text-cyan-400"></i> Evolução do Faturamento
+            </h3>
+            <p class="text-xs text-slate-400">Histórico de faturamento acumulado no período</p>
+          </div>
+
+          <!-- Alternador Semanal / Mensal -->
+          <div class="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-800 text-xs font-semibold">
+            <button id="btnVisaoSemanal" onclick="alterarAgrupamentoGrafico('semanal')" class="px-3 py-1 rounded-md transition text-slate-400 hover:text-white">Semanal</button>
+            <button id="btnVisaoMensal" onclick="alterarAgrupamentoGrafico('mensal')" class="px-3 py-1 rounded-md transition bg-cyan-500 text-slate-950 font-bold shadow-md">Mensal</button>
+          </div>
+        </div>
+
+        <div class="relative h-72 w-full">
+          <canvas id="graficoEvolucao"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 2: Resíduo vs Água Potável (1 Coluna) -->
+      <div class="glass-card rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="ph ph-pie-chart text-cyan-400"></i> Faturamento por Categoria
+          </h3>
+          <p class="text-xs text-slate-400">Resíduo x Água Potável</p>
+        </div>
+
+        <div class="relative h-56 w-full flex items-center justify-center">
+          <canvas id="graficoCategoria"></canvas>
+        </div>
+
+        <!-- Indicadores Numéricos de Categoria -->
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-xs font-mono-num">
+          <div class="p-2 rounded-xl bg-amber-500/5 border border-amber-500/10">
+            <span class="text-amber-400 block font-sans text-[10px] uppercase font-bold">Resíduo</span>
+            <span id="valorCategoriaResiduo" class="font-bold text-slate-200">R$ 0,00</span>
+          </div>
+          <div class="p-2 rounded-xl bg-cyan-500/5 border border-cyan-500/10">
+            <span class="text-cyan-400 block font-sans text-[10px] uppercase font-bold">Água Potável</span>
+            <span id="valorCategoriaAgua" class="font-bold text-slate-200">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RANKINGS EXECUTIVOS: TOP 5 VEÍCULOS, MOTORISTAS E CLIENTES -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- TOP 5 VEÍCULOS -->
+      <div class="glass-card rounded-2xl p-5 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+            <i class="ph ph-truck text-cyan-400 text-sm"></i> Top 5 Veículos
+          </h4>
+          <span class="text-[10px] font-mono-num text-slate-500">POR PLACA</span>
+        </div>
+        <div id="listaTopVeiculos" class="space-y-3 text-xs">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- TOP 5 MOTORISTAS -->
+      <div class="glass-card rounded-2xl p-5 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+            <i class="ph ph-steering-wheel text-emerald-400 text-sm"></i> Top 5 Motoristas
+          </h4>
+          <span class="text-[10px] font-mono-num text-slate-500">POR FATURAMENTO</span>
+        </div>
+        <div id="listaTopMotoristas" class="space-y-3 text-xs">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- TOP 5 CLIENTES -->
+      <div class="glass-card rounded-2xl p-5 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+            <i class="ph ph-buildings text-purple-400 text-sm"></i> Top 5 Clientes
+          </h4>
+          <span class="text-[10px] font-mono-num text-slate-500">CURVA ABC</span>
+        </div>
+        <div id="listaTopClientes" class="space-y-3 text-xs">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz62qdZsggJCGqm-okOeqqMTeMZExkKGz45bicNHEtHX04pB0e6cex7bLgRrJVMe_dJ/exec";
+    const META_MENSAL = 350000.00;
+
+    let agendamentos = [];
+    let baseVeiculos = [];
+    let chartEvolucao = null;
+    let chartCategoria = null;
+    let visaoAgrupamento = "mensal"; // 'mensal' ou 'semanal'
+
+    window.addEventListener("DOMContentLoaded", () => {
+      // Iniciar com mês atual
+      const dataAtual = new Date();
+      const mesAtual = String(dataAtual.getMonth() + 1).padStart(2, "0");
+      const anoAtual = String(dataAtual.getFullYear());
+
+      const selMes = document.getElementById("filtroMes");
+      const selAno = document.getElementById("filtroAno");
+
+      if (selMes) selMes.value = mesAtual;
+      if (selAno) selAno.value = anoAtual;
+
+      carregarDados();
+    });
+
+    async function carregarDados() {
+      const badge = document.getElementById("badgeStatus");
+      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Carregando...`;
+
+      try {
+        const res = await fetch(URL_APPS_SCRIPT + "?t=" + new Date().getTime());
+        const json = await res.json();
+
+        if (json.status === "success") {
+          agendamentos = json.data || [];
+          baseVeiculos = json.veiculos || [];
+
+          localStorage.setItem("cache_agenda_fin", JSON.stringify(agendamentos));
+          localStorage.setItem("cache_veiculos_fin", JSON.stringify(baseVeiculos));
+
+          badge.className = "text-xs px-2.5 py-1 rounded-lg font-mono-num font-semibold bg-emerald-950/40 text-emerald-300 border border-emerald-800/40 flex items-center gap-1.5";
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Online (${agendamentos.length} reg.)`;
+
+          renderizarDashboard();
+        }
+      } catch (err) {
+        console.error("Falha ao carregar dados:", err);
+        agendamentos = JSON.parse(localStorage.getItem("cache_agenda_fin") || "[]");
+        baseVeiculos = JSON.parse(localStorage.getItem("cache_veiculos_fin") || "[]");
+
+        badge.className = "text-xs px-2.5 py-1 rounded-lg font-mono-num font-semibold bg-rose-950/40 text-rose-300 border border-rose-800/40 flex items-center gap-1.5";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Modo Offline`;
+
+        renderizarDashboard();
+      }
+    }
+
+    function alterarAgrupamentoGrafico(tipo) {
+      visaoAgrupamento = tipo;
+      const btnSemanal = document.getElementById("btnVisaoSemanal");
+      const btnMensal = document.getElementById("btnVisaoMensal");
+
+      if (tipo === "semanal") {
+        btnSemanal.className = "px-3 py-1 rounded-md transition bg-cyan-500 text-slate-950 font-bold shadow-md";
+        btnMensal.className = "px-3 py-1 rounded-md transition text-slate-400 hover:text-white";
+      } else {
+        btnMensal.className = "px-3 py-1 rounded-md transition bg-cyan-500 text-slate-950 font-bold shadow-md";
+        btnSemanal.className = "px-3 py-1 rounded-md transition text-slate-400 hover:text-white";
+      }
+
+      atualizarGraficoEvolucao();
+    }
+
+    function parseValor(val) {
+      if (typeof val === "number") return val;
+      if (!val) return 0;
+      let s = String(val).replace(/R\$/g, "").trim();
+      s = s.replace(/\./g, "").replace(",", ".");
+      const num = parseFloat(s);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function formatarMoeda(val) {
+      return (val || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function extrairNomeCliente(nomeCompleto) {
+      if (!nomeCompleto) return "Não Informado";
+      const partes = String(nomeCompleto).split("||");
+      return partes[0].trim();
+    }
+
+    function identificarTipoServicoPorVeiculo(placa) {
+      const v = baseVeiculos.find(item => item.placa === placa);
+      if (v && v.tipo) {
+        return v.tipo.toLowerCase().includes("água") ? "Água Potável" : "Resíduo";
+      }
+      return "Resíduo";
+    }
+
+    function renderizarDashboard() {
+      const mesFiltro = document.getElementById("filtroMes").value;
+      const anoFiltro = document.getElementById("filtroAno").value;
+
+      // Filtrar registros pelo período selecionado
+      const filtrados = agendamentos.filter(s => {
+        if (!s.data) return false;
+        const partes = s.data.split("-");
+        const ano = partes[0];
+        const mes = partes[1];
+
+        if (anoFiltro !== "todos" && ano !== anoFiltro) return false;
+        if (mesFiltro !== "todos" && mes !== mesFiltro) return false;
+        return true;
+      });
+
+      // Cálculos Financeiros
+      let faturadoRealizado = 0;
+      let faturadoAberto = 0;
+      let faturadoCancelado = 0;
+      let qtdRealizados = 0;
+      let qtdAberto = 0;
+      let qtdCancelado = 0;
+
+      let faturadoResiduo = 0;
+      let qtdResiduo = 0;
+      let faturadoAgua = 0;
+      let qtdAgua = 0;
+
+      const porVeiculo = {};
+      const porMotorista = {};
+      const porCliente = {};
+
+      filtrados.forEach(s => {
+        const val = parseValor(s.valor);
+        const status = (s.status || "Agendado").trim();
+        const categoria = identificarTipoServicoPorVeiculo(s.veiculo);
+
+        if (status === "Cancelado") {
+          faturadoCancelado += val;
+          qtdCancelado++;
+        } else if (status === "Finalizado") {
+          faturadoRealizado += val;
+          qtdRealizados++;
+
+          if (categoria === "Água Potável") {
+            faturadoAgua += val;
+            qtdAgua++;
+          } else {
+            faturadoResiduo += val;
+            qtdResiduo++;
+          }
+
+          // Agrupamentos de Líderes
+          if (s.veiculo) porVeiculo[s.veiculo] = (porVeiculo[s.veiculo] || 0) + val;
+          if (s.motorista) porMotorista[s.motorista] = (porMotorista[s.motorista] || 0) + val;
+          const clienteLimpo = extrairNomeCliente(s.cliente);
+          porCliente[clienteLimpo] = (porCliente[clienteLimpo] || 0) + val;
+
+        } else {
+          // Status Agendado, Em deslocamento, No Local
+          faturadoAberto += val;
+          qtdAberto++;
+        }
+      });
+
+      // Atualizar Meta Mensal
+      const metaAplicada = mesFiltro === "todos" ? META_MENSAL * 12 : META_MENSAL;
+      const pctMeta = metaAplicada > 0 ? (faturadoRealizado / metaAplicada) * 100 : 0;
+      const barraMeta = document.getElementById("barraProgressoMeta");
+      const pctMetaTexto = document.getElementById("porcentagemMetaTexto");
+
+      document.getElementById("valorFaturadoTotal").innerText = formatarMoeda(faturadoRealizado);
+      document.getElementById("valorMetaDisplay").innerText = formatarMoeda(metaAplicada);
+
+      pctMetaTexto.innerText = pctMeta.toFixed(1) + "%";
+      barraMeta.style.width = Math.min(pctMeta, 100) + "%";
+
+      const badgeDiferenca = document.getElementById("badgeDiferencaMeta");
+      if (faturadoRealizado >= metaAplicada) {
+        badgeDiferenca.className = "text-[11px] font-semibold text-emerald-400";
+        badgeDiferenca.innerText = `Superávit de ${formatarMoeda(faturadoRealizado - metaAplicada)}`;
+      } else {
+        badgeDiferenca.className = "text-[11px] font-semibold text-slate-400";
+        badgeDiferenca.innerText = `Faltam ${formatarMoeda(metaAplicada - faturadoRealizado)}`;
+      }
+
+      // Atualizar Cards KPIs
+      document.getElementById("kpiPipelineAberto").innerText = formatarMoeda(faturadoAberto);
+      document.getElementById("kpiQtdAberto").innerText = `${qtdAberto} ordens em rota / agendadas`;
+
+      const ticketResiduo = qtdResiduo > 0 ? faturadoResiduo / qtdResiduo : 0;
+      document.getElementById("kpiTicketResiduo").innerText = formatarMoeda(ticketResiduo);
+      document.getElementById("kpiQtdResiduo").innerText = `${qtdResiduo} atendimentos concluídos`;
+
+      const ticketAgua = qtdAgua > 0 ? faturadoAgua / qtdAgua : 0;
+      document.getElementById("kpiTicketAgua").innerText = formatarMoeda(ticketAgua);
+      document.getElementById("kpiQtdAgua").innerText = `${qtdAgua} atendimentos concluídos`;
+
+      document.getElementById("kpiPerdaCancelado").innerText = formatarMoeda(faturadoCancelado);
+      document.getElementById("kpiQtdCancelado").innerText = `${qtdCancelado} serviços cancelados`;
+
+      document.getElementById("valorCategoriaResiduo").innerText = formatarMoeda(faturadoResiduo);
+      document.getElementById("valorCategoriaAgua").innerText = formatarMoeda(faturadoAgua);
+
+      // Renderizar Rankings
+      renderizarRanking("listaTopVeiculos", porVeiculo, faturadoRealizado, "bg-cyan-500");
+      renderizarRanking("listaTopMotoristas", porMotorista, faturadoRealizado, "bg-emerald-500");
+      renderizarRanking("listaTopClientes", porCliente, faturadoRealizado, "bg-purple-500");
+
+      // Atualizar Gráficos
+      atualizarGraficoCategoria(faturadoResiduo, faturadoAgua);
+      atualizarGraficoEvolucao();
+    }
+
+    function renderizarRanking(elementId, dicionario, totalFaturado, corBarra) {
+      const container = document.getElementById(elementId);
+      const entradas = Object.entries(dicionario)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      if (entradas.length === 0) {
+        container.innerHTML = `<p class="text-slate-500 text-center py-4">Nenhum registro para o período.</p>`;
+        return;
+      }
+
+      const maiorValor = entradas[0][1] || 1;
+
+      container.innerHTML = entradas.map((item, index) => {
+        const nome = item[0];
+        const val = item[1];
+        const pctRelativo = (val / maiorValor) * 100;
+        const pctTotal = totalFaturado > 0 ? ((val / totalFaturado) * 100).toFixed(1) : 0;
+
+        return `
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-medium text-slate-200 truncate pr-2">
+                <span class="font-mono-num text-slate-500 mr-1">#${index + 1}</span> ${nome}
+              </span>
+              <span class="font-mono-num font-bold text-white whitespace-nowrap">${formatarMoeda(val)}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                <div class="${corBarra} h-full rounded-full transition-all duration-500" style="width: ${pctRelativo}%"></div>
+              </div>
+              <span class="text-[10px] text-slate-400 font-mono-num">${pctTotal}%</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function atualizarGraficoCategoria(valResiduo, valAgua) {
+      const ctx = document.getElementById("graficoCategoria").getContext("2d");
+
+      if (chartCategoria) chartCategoria.destroy();
+
+      const total = valResiduo + valAgua;
+      if (total === 0) {
+        chartCategoria = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Sem dados"],
+            datasets: [{ data: [1], backgroundColor: ["#1e293b"], borderWidth: 0 }]
+          },
+          options: { cutout: "75%", plugins: { legend: { display: false } } }
+        });
+        return;
+      }
+
+      chartCategoria = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Resíduo", "Água Potável"],
+          datasets: [{
+            data: [valResiduo, valAgua],
+            backgroundColor: ["#f59e0b", "#06b6d4"],
+            borderColor: "#0d1424",
+            borderWidth: 3,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "75%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#94a3b8", font: { family: "Plus Jakarta Sans", size: 11 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${formatarMoeda(val)} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function atualizarGraficoEvolucao() {
+      const ctx = document.getElementById("graficoEvolucao").getContext("2d");
+      const mesFiltro = document.getElementById("filtroMes").value;
+      const anoFiltro = document.getElementById("filtroAno").value;
+
+      if (chartEvolucao) chartEvolucao.destroy();
+
+      let labels = [];
+      let valores = [];
+
+      if (visaoAgrupamento === "mensal") {
+        labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        valores = new Array(12).fill(0);
+
+        agendamentos.forEach(s => {
+          if (!s.data || (s.status || "").trim() !== "Finalizado") return;
+          const partes = s.data.split("-");
+          const ano = partes[0];
+          const mesIdx = parseInt(partes[1], 10) - 1;
+
+          if (anoFiltro !== "todos" && ano !== anoFiltro) return;
+          if (mesIdx >= 0 && mesIdx < 12) {
+            valores[mesIdx] += parseValor(s.valor);
+          }
+        });
+      } else {
+        // Visão Semanal (Semanas 1 a 5 do mês selecionado)
+        labels = ["Semana 1 (1-7)", "Semana 2 (8-14)", "Semana 3 (15-21)", "Semana 4 (22-28)", "Semana 5 (29+)"];
+        valores = new Array(5).fill(0);
+
+        agendamentos.forEach(s => {
+          if (!s.data || (s.status || "").trim() !== "Finalizado") return;
+          const partes = s.data.split("-");
+          const ano = partes[0];
+          const mes = partes[1];
+          const dia = parseInt(partes[2], 10);
+
+          if (anoFiltro !== "todos" && ano !== anoFiltro) return;
+          if (mesFiltro !== "todos" && mes !== mesFiltro) return;
+
+          if (dia <= 7) valores[0] += parseValor(s.valor);
+          else if (dia <= 14) valores[1] += parseValor(s.valor);
+          else if (dia <= 21) valores[2] += parseValor(s.valor);
+          else if (dia <= 28) valores[3] += parseValor(s.valor);
+          else valores[4] += parseValor(s.valor);
+        });
+      }
+
+      // Gradiente Neon
+      const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+      gradient.addColorStop(0, "rgba(6, 182, 212, 0.45)");
+      gradient.addColorStop(1, "rgba(6, 182, 212, 0.0)");
+
+      chartEvolucao = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Faturamento Realizado",
+            data: valores,
+            borderColor: "#06b6d4",
+            backgroundColor: gradient,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: "#38bdf8",
+            pointBorderColor: "#050811",
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: { color: "rgba(51, 65, 85, 0.2)" },
+              ticks: { color: "#94a3b8", font: { family: "Plus Jakarta Sans", size: 11 } }
+            },
+            y: {
+              grid: { color: "rgba(51, 65, 85, 0.2)" },
+              ticks: {
+                color: "#94a3b8",
+                font: { family: "JetBrains Mono", size: 10 },
+                callback: function(val) {
+                  if (val >= 1000) return "R$ " + (val / 1000).toFixed(0) + "k";
+                  return "R$ " + val;
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return " Faturado: " + formatarMoeda(context.raw || 0);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
