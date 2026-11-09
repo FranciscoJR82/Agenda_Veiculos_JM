@@ -22,9 +22,9 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Efeito de Vidro Futurista */
+    /* Efeito Glassmorphism Dark Mode */
     .glass-card {
-      background: rgba(13, 20, 36, 0.72);
+      background: rgba(13, 20, 36, 0.75);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(56, 189, 248, 0.12);
@@ -34,15 +34,11 @@
       box-shadow: 0 10px 30px -10px rgba(14, 165, 233, 0.15);
     }
 
-    /* Brilhos e Gradientes Neon */
     .glow-cyan {
       box-shadow: 0 0 25px -4px rgba(6, 182, 212, 0.35);
     }
-    .glow-emerald {
-      box-shadow: 0 0 25px -4px rgba(16, 185, 129, 0.35);
-    }
 
-    /* Custom Scrollbar */
+    /* Scrollbar Personalizada */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -71,8 +67,8 @@
     />
   </div>
 
-  <!-- NAVEGAÇÃO E CONTROLES SUPERIORES -->
-  <header class="sticky top-0 z-30 bg-[#090d1a]/90 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3">
+  <!-- NAVEGAÇÃO E FILTROS SUPERIORES -->
+  <header class="sticky top-0 z-30 bg-[#090d1a]/95 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
       
       <!-- Título e Badge -->
@@ -85,34 +81,35 @@
             Financeiro & Faturamento
             <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">Analytics</span>
           </h1>
-          <p class="text-xs text-slate-400">Controle Estratégico de Receita • JM Ambiental</p>
+          <p class="text-xs text-slate-400">Desempenho Operacional • JM Ambiental</p>
         </div>
       </div>
 
       <!-- Filtros e Ações -->
       <div class="flex flex-wrap items-center gap-2.5">
-        <!-- Status de Sincronização -->
-        <span id="badgeStatus" class="text-xs px-2.5 py-1 rounded-lg font-mono-num font-semibold bg-cyan-950/40 text-cyan-300 border border-cyan-800/40 flex items-center gap-1.5 cursor-pointer" onclick="carregarDados()" title="Sincronizar Dados">
+        <!-- Status de Conexão -->
+        <span id="badgeStatus" class="text-xs px-2.5 py-1 rounded-lg font-mono-num font-semibold bg-cyan-950/40 text-cyan-300 border border-cyan-800/40 flex items-center gap-1.5 cursor-pointer" onclick="carregarDados()" title="Clique para sincronizar">
           <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Sincronizando...
         </span>
 
-        <!-- Seletor de Período -->
+        <!-- Seletor de Período (Mês e Ano) -->
         <div class="flex items-center bg-slate-900/90 rounded-xl p-1 border border-slate-800 shadow-inner gap-1">
-          <i class="ph ph-calendar-blank text-slate-400 pl-1.5 text-sm"></i>
+          <i class="ph ph-funnel text-slate-400 pl-1.5 text-sm"></i>
+          
           <select id="filtroMes" onchange="renderizarDashboard()" class="bg-transparent text-white text-xs font-semibold rounded px-2 py-1 focus:outline-none cursor-pointer">
             <option value="todos" class="bg-slate-900">Ano Completo</option>
-            <option value="01" class="bg-slate-900">01 - Janeiro</option>
-            <option value="02" class="bg-slate-900">02 - Fevereiro</option>
-            <option value="03" class="bg-slate-900">03 - Março</option>
-            <option value="04" class="bg-slate-900">04 - Abril</option>
-            <option value="05" class="bg-slate-900">05 - Maio</option>
-            <option value="06" class="bg-slate-900">06 - Junho</option>
-            <option value="07" class="bg-slate-900">07 - Julho</option>
-            <option value="08" class="bg-slate-900">08 - Agosto</option>
-            <option value="09" class="bg-slate-900">09 - Setembro</option>
-            <option value="10" class="bg-slate-900">10 - Outubro</option>
-            <option value="11" class="bg-slate-900">11 - Novembro</option>
-            <option value="12" class="bg-slate-900">12 - Dezembro</option>
+            <option value="01" class="bg-slate-900">Janeiro</option>
+            <option value="02" class="bg-slate-900">Fevereiro</option>
+            <option value="03" class="bg-slate-900">Março</option>
+            <option value="04" class="bg-slate-900">Abril</option>
+            <option value="05" class="bg-slate-900">Maio</option>
+            <option value="06" class="bg-slate-900">Junho</option>
+            <option value="07" class="bg-slate-900">Julho</option>
+            <option value="08" class="bg-slate-900">Agosto</option>
+            <option value="09" class="bg-slate-900">Setembro</option>
+            <option value="10" class="bg-slate-900">Outubro</option>
+            <option value="11" class="bg-slate-900">Novembro</option>
+            <option value="12" class="bg-slate-900">Dezembro</option>
           </select>
 
           <select id="filtroAno" onchange="renderizarDashboard()" class="bg-transparent text-cyan-400 text-xs font-bold rounded px-2 py-1 focus:outline-none cursor-pointer">
@@ -122,12 +119,10 @@
           </select>
         </div>
 
-        <!-- Recarregar -->
-        <button onclick="carregarDados()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2 rounded-xl border border-slate-800 transition" title="Atualizar Dados">
+        <button onclick="carregarDados()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2 rounded-xl border border-slate-800 transition" title="Recarregar Dados">
           <i class="ph ph-arrows-clockwise text-base"></i>
         </button>
 
-        <!-- Link para Agenda Operacional -->
         <a href="index.html" class="bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 px-3 py-1.5 rounded-xl border border-cyan-800/40 text-xs font-semibold flex items-center gap-1.5 transition">
           <i class="ph ph-calendar-check text-base"></i>
           <span>Agenda Frota</span>
@@ -140,20 +135,19 @@
   <!-- CORPO PRINCIPAL -->
   <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-    <!-- CARD PRINCIPAL: META MENSAL & PROGRESSO EXECUTIVO -->
+    <!-- CARD PRINCIPAL: DESEMPENHO OPERACIONAL (FINALIZADOS) VS META -->
     <section class="glass-card rounded-2xl p-5 border border-cyan-500/20 relative overflow-hidden">
-      <!-- Glow Decorativo de Fundo -->
       <div class="absolute -right-20 -top-20 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div class="relative z-10 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-              <i class="ph ph-target text-base"></i> Desempenho Operacional vs. Meta
+              <i class="ph ph-target text-base"></i> Desempenho Operacional (Serviços Finalizados)
             </span>
             <div class="flex items-baseline gap-2 mt-1">
               <h2 id="valorFaturadoTotal" class="text-2xl md:text-4xl font-extrabold text-white font-mono-num tracking-tight">R$ 0,00</h2>
-              <span class="text-xs md:text-sm text-slate-400 font-medium">realizados</span>
+              <span id="badgeQtdFinalizados" class="text-xs md:text-sm text-slate-400 font-medium">(0 serviços concluídos)</span>
             </div>
           </div>
 
@@ -177,10 +171,10 @@
       </div>
     </section>
 
-    <!-- GRID DE CARDS KPIs -->
+    <!-- CARDS DE METAS E KPIS INTERATIVOS -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
-      <!-- Card 1: Pipeline em Aberto -->
+      <!-- Pipeline em Aberto -->
       <div class="glass-card rounded-2xl p-4 transition">
         <div class="flex items-center justify-between">
           <span class="text-[11px] uppercase font-bold text-amber-400 tracking-wider">Pipeline em Aberto</span>
@@ -189,22 +183,22 @@
           </div>
         </div>
         <h3 id="kpiPipelineAberto" class="text-xl md:text-2xl font-bold font-mono-num text-white mt-2">R$ 0,00</h3>
-        <p id="kpiQtdAberto" class="text-xs text-slate-400 mt-1">0 ordens em rota / agendadas</p>
+        <p id="kpiQtdAberto" class="text-xs text-slate-400 mt-1">0 ordens agendadas / em rota</p>
       </div>
 
-      <!-- Card 2: Ticket Médio - Resíduo -->
+      <!-- Ticket Médio - Resíduo -->
       <div class="glass-card rounded-2xl p-4 transition">
         <div class="flex items-center justify-between">
-          <span class="text-[11px] uppercase font-bold text-blue-400 tracking-wider">Ticket Médio • Resíduo</span>
-          <div class="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <span class="text-[11px] uppercase font-bold text-amber-300 tracking-wider">Ticket Médio • Resíduo</span>
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/20">
             <i class="ph ph-drop text-lg"></i>
           </div>
         </div>
         <h3 id="kpiTicketResiduo" class="text-xl md:text-2xl font-bold font-mono-num text-white mt-2">R$ 0,00</h3>
-        <p id="kpiQtdResiduo" class="text-xs text-slate-400 mt-1">0 atendimentos concluídos</p>
+        <p id="kpiQtdResiduo" class="text-xs text-slate-400 mt-1">0 finalizados</p>
       </div>
 
-      <!-- Card 3: Ticket Médio - Água Potável -->
+      <!-- Ticket Médio - Água Potável -->
       <div class="glass-card rounded-2xl p-4 transition">
         <div class="flex items-center justify-between">
           <span class="text-[11px] uppercase font-bold text-cyan-400 tracking-wider">Ticket Médio • Água</span>
@@ -213,10 +207,10 @@
           </div>
         </div>
         <h3 id="kpiTicketAgua" class="text-xl md:text-2xl font-bold font-mono-num text-white mt-2">R$ 0,00</h3>
-        <p id="kpiQtdAgua" class="text-xs text-slate-400 mt-1">0 atendimentos concluídos</p>
+        <p id="kpiQtdAgua" class="text-xs text-slate-400 mt-1">0 finalizados</p>
       </div>
 
-      <!-- Card 4: Cancelamentos / Perda -->
+      <!-- Cancelados / Perda -->
       <div class="glass-card rounded-2xl p-4 transition">
         <div class="flex items-center justify-between">
           <span class="text-[11px] uppercase font-bold text-rose-400 tracking-wider">Cancelados / Perda</span>
@@ -225,7 +219,7 @@
           </div>
         </div>
         <h3 id="kpiPerdaCancelado" class="text-xl md:text-2xl font-bold font-mono-num text-rose-400 mt-2">R$ 0,00</h3>
-        <p id="kpiQtdCancelado" class="text-xs text-slate-400 mt-1">0 serviços cancelados</p>
+        <p id="kpiQtdCancelado" class="text-xs text-slate-400 mt-1">0 cancelamentos</p>
       </div>
 
     </section>
@@ -233,14 +227,14 @@
     <!-- GRÁFICOS: EVOLUÇÃO TEMPORAL & CATEGORIA -->
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- Gráfico 1: Evolução da Receita (2 Colunas) -->
+      <!-- Gráfico 1: Evolução da Receita Realizada -->
       <div class="glass-card rounded-2xl p-5 lg:col-span-2 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              <i class="ph ph-trend-up text-cyan-400"></i> Evolução do Faturamento
+              <i class="ph ph-trend-up text-cyan-400"></i> Evolução do Faturamento Realizado
             </h3>
-            <p class="text-xs text-slate-400">Histórico de faturamento acumulado no período</p>
+            <p class="text-xs text-slate-400">Faturamento finalizado no período selecionado</p>
           </div>
 
           <!-- Alternador Semanal / Mensal -->
@@ -255,7 +249,7 @@
         </div>
       </div>
 
-      <!-- Gráfico 2: Resíduo vs Água Potável (1 Coluna) -->
+      <!-- Gráfico 2: Resíduo vs Água Potável -->
       <div class="glass-card rounded-2xl p-5 space-y-4 flex flex-col justify-between">
         <div>
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
@@ -268,7 +262,6 @@
           <canvas id="graficoCategoria"></canvas>
         </div>
 
-        <!-- Indicadores Numéricos de Categoria -->
         <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-xs font-mono-num">
           <div class="p-2 rounded-xl bg-amber-500/5 border border-amber-500/10">
             <span class="text-amber-400 block font-sans text-[10px] uppercase font-bold">Resíduo</span>
@@ -283,7 +276,7 @@
 
     </section>
 
-    <!-- RANKINGS EXECUTIVOS: TOP 5 VEÍCULOS, MOTORISTAS E CLIENTES -->
+    <!-- RANKINGS EXECUTIVOS: TOP 5 -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
       <!-- TOP 5 VEÍCULOS -->
@@ -294,9 +287,7 @@
           </h4>
           <span class="text-[10px] font-mono-num text-slate-500">POR PLACA</span>
         </div>
-        <div id="listaTopVeiculos" class="space-y-3 text-xs">
-          <!-- Renderizado dinamicamente -->
-        </div>
+        <div id="listaTopVeiculos" class="space-y-3 text-xs"></div>
       </div>
 
       <!-- TOP 5 MOTORISTAS -->
@@ -307,9 +298,7 @@
           </h4>
           <span class="text-[10px] font-mono-num text-slate-500">POR FATURAMENTO</span>
         </div>
-        <div id="listaTopMotoristas" class="space-y-3 text-xs">
-          <!-- Renderizado dinamicamente -->
-        </div>
+        <div id="listaTopMotoristas" class="space-y-3 text-xs"></div>
       </div>
 
       <!-- TOP 5 CLIENTES -->
@@ -320,9 +309,7 @@
           </h4>
           <span class="text-[10px] font-mono-num text-slate-500">CURVA ABC</span>
         </div>
-        <div id="listaTopClientes" class="space-y-3 text-xs">
-          <!-- Renderizado dinamicamente -->
-        </div>
+        <div id="listaTopClientes" class="space-y-3 text-xs"></div>
       </div>
 
     </section>
@@ -337,10 +324,9 @@
     let baseVeiculos = [];
     let chartEvolucao = null;
     let chartCategoria = null;
-    let visaoAgrupamento = "mensal"; // 'mensal' ou 'semanal'
+    let visaoAgrupamento = "mensal";
 
     window.addEventListener("DOMContentLoaded", () => {
-      // Iniciar com mês atual
       const dataAtual = new Date();
       const mesAtual = String(dataAtual.getMonth() + 1).padStart(2, "0");
       const anoAtual = String(dataAtual.getFullYear());
@@ -348,11 +334,75 @@
       const selMes = document.getElementById("filtroMes");
       const selAno = document.getElementById("filtroAno");
 
+      // Por padrão, abre no mês corrente (ou Ano Completo se desejar)
       if (selMes) selMes.value = mesAtual;
       if (selAno) selAno.value = anoAtual;
 
       carregarDados();
     });
+
+    // MOTOR DE NORMALIZAÇÃO DE VALOR PARA PADRÃO BRASILEIRO
+    function normalizarParaMoedaBR(val) {
+      if (val === null || val === undefined) return 0;
+      if (typeof val === "number") return isNaN(val) ? 0 : val;
+
+      let s = String(val).trim();
+      if (!s || s === "-") return 0;
+
+      // 1. Remove símbolo de moeda e espaços em branco normais ou não separáveis
+      s = s.replace(/R\$/g, "").replace(/\u00A0/g, " ").trim();
+
+      // 2. Corrige espaçamento após separadores decimais (Ex: "739, 60" -> "739,60")
+      s = s.replace(/([,\.])\s+/g, "$1");
+
+      // 3. Trata casos com vírgula e ponto (Ex: 1.325,86 vs 1,325.86)
+      if (s.includes(",") && s.includes(".")) {
+        if (s.lastIndexOf(",") > s.lastIndexOf(".")) {
+          // Padrão BR: ponto é milhar, vírgula é decimal
+          s = s.replace(/\./g, "").replace(",", ".");
+        } else {
+          // Padrão Americano: vírgula é milhar, ponto é decimal
+          s = s.replace(/,/g, "");
+        }
+      } else if (s.includes(",")) {
+        // Ex: 500,00 ou 739,60
+        s = s.replace(",", ".");
+      } else if (s.includes(".")) {
+        // Ex: 800.00 ou 3642.75 ou 1.200
+        const partes = s.split(".");
+        if (partes.length > 2) {
+          s = s.replace(/\./g, "");
+        } else if (partes.length === 2 && partes[1].length === 3 && parseInt(partes[0], 10) < 1000) {
+          s = partes[0] + partes[1]; // Ex: 1.200 vira 1200
+        }
+      }
+
+      // 4. Limpa quaisquer caracteres remanescentes que não sejam dígitos, ponto ou menos
+      s = s.replace(/[^0-9.-]/g, "");
+      const num = parseFloat(s);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function formatarMoedaBR(val) {
+      return (val || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function extrairNomeCliente(nomeCompleto) {
+      if (!nomeCompleto) return "Não Informado";
+      const partes = String(nomeCompleto).split("||");
+      return partes[0].trim();
+    }
+
+    function identificarTipoServicoPorVeiculo(placa) {
+      const v = baseVeiculos.find(item => item.placa === placa);
+      if (v && v.tipo) {
+        return v.tipo.toLowerCase().includes("água") ? "Água Potável" : "Resíduo";
+      }
+      return "Resíduo";
+    }
 
     async function carregarDados() {
       const badge = document.getElementById("badgeStatus");
@@ -402,41 +452,11 @@
       atualizarGraficoEvolucao();
     }
 
-    function parseValor(val) {
-      if (typeof val === "number") return val;
-      if (!val) return 0;
-      let s = String(val).replace(/R\$/g, "").trim();
-      s = s.replace(/\./g, "").replace(",", ".");
-      const num = parseFloat(s);
-      return isNaN(num) ? 0 : num;
-    }
-
-    function formatarMoeda(val) {
-      return (val || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    }
-
-    function extrairNomeCliente(nomeCompleto) {
-      if (!nomeCompleto) return "Não Informado";
-      const partes = String(nomeCompleto).split("||");
-      return partes[0].trim();
-    }
-
-    function identificarTipoServicoPorVeiculo(placa) {
-      const v = baseVeiculos.find(item => item.placa === placa);
-      if (v && v.tipo) {
-        return v.tipo.toLowerCase().includes("água") ? "Água Potável" : "Resíduo";
-      }
-      return "Resíduo";
-    }
-
     function renderizarDashboard() {
       const mesFiltro = document.getElementById("filtroMes").value;
       const anoFiltro = document.getElementById("filtroAno").value;
 
-      // Filtrar registros pelo período selecionado
+      // Filtragem por Período
       const filtrados = agendamentos.filter(s => {
         if (!s.data) return false;
         const partes = s.data.split("-");
@@ -448,11 +468,11 @@
         return true;
       });
 
-      // Cálculos Financeiros
-      let faturadoRealizado = 0;
-      let faturadoAberto = 0;
-      let faturadoCancelado = 0;
-      let qtdRealizados = 0;
+      // Variáveis de Cálculo
+      let faturadoRealizado = 0; // Estritamente Finalizados
+      let faturadoAberto = 0;     // Agendados, No Local, Em deslocamento
+      let faturadoCancelado = 0;  // Cancelados
+      let qtdFinalizados = 0;
       let qtdAberto = 0;
       let qtdCancelado = 0;
 
@@ -466,7 +486,7 @@
       const porCliente = {};
 
       filtrados.forEach(s => {
-        const val = parseValor(s.valor);
+        const val = normalizarParaMoedaBR(s.valor);
         const status = (s.status || "Agendado").trim();
         const categoria = identificarTipoServicoPorVeiculo(s.veiculo);
 
@@ -474,8 +494,9 @@
           faturadoCancelado += val;
           qtdCancelado++;
         } else if (status === "Finalizado") {
+          // REGRA DE OURO: Desempenho Operacional é somente serviços com status Finalizado
           faturadoRealizado += val;
-          qtdRealizados++;
+          qtdFinalizados++;
 
           if (categoria === "Água Potável") {
             faturadoAgua += val;
@@ -485,27 +506,27 @@
             qtdResiduo++;
           }
 
-          // Agrupamentos de Líderes
+          // Agrupamentos dos Rankings (Apenas Faturados)
           if (s.veiculo) porVeiculo[s.veiculo] = (porVeiculo[s.veiculo] || 0) + val;
           if (s.motorista) porMotorista[s.motorista] = (porMotorista[s.motorista] || 0) + val;
           const clienteLimpo = extrairNomeCliente(s.cliente);
           porCliente[clienteLimpo] = (porCliente[clienteLimpo] || 0) + val;
-
         } else {
-          // Status Agendado, Em deslocamento, No Local
+          // Status Agendado, Em deslocamento ou No Local
           faturadoAberto += val;
           qtdAberto++;
         }
       });
 
-      // Atualizar Meta Mensal
+      // Atualização da Meta
       const metaAplicada = mesFiltro === "todos" ? META_MENSAL * 12 : META_MENSAL;
       const pctMeta = metaAplicada > 0 ? (faturadoRealizado / metaAplicada) * 100 : 0;
       const barraMeta = document.getElementById("barraProgressoMeta");
       const pctMetaTexto = document.getElementById("porcentagemMetaTexto");
 
-      document.getElementById("valorFaturadoTotal").innerText = formatarMoeda(faturadoRealizado);
-      document.getElementById("valorMetaDisplay").innerText = formatarMoeda(metaAplicada);
+      document.getElementById("valorFaturadoTotal").innerText = formatarMoedaBR(faturadoRealizado);
+      document.getElementById("badgeQtdFinalizados").innerText = `(${qtdFinalizados} serviços concluídos)`;
+      document.getElementById("valorMetaDisplay").innerText = formatarMoedaBR(metaAplicada);
 
       pctMetaTexto.innerText = pctMeta.toFixed(1) + "%";
       barraMeta.style.width = Math.min(pctMeta, 100) + "%";
@@ -513,36 +534,36 @@
       const badgeDiferenca = document.getElementById("badgeDiferencaMeta");
       if (faturadoRealizado >= metaAplicada) {
         badgeDiferenca.className = "text-[11px] font-semibold text-emerald-400";
-        badgeDiferenca.innerText = `Superávit de ${formatarMoeda(faturadoRealizado - metaAplicada)}`;
+        badgeDiferenca.innerText = `Superávit de ${formatarMoedaBR(faturadoRealizado - metaAplicada)}`;
       } else {
         badgeDiferenca.className = "text-[11px] font-semibold text-slate-400";
-        badgeDiferenca.innerText = `Faltam ${formatarMoeda(metaAplicada - faturadoRealizado)}`;
+        badgeDiferenca.innerText = `Faltam ${formatarMoedaBR(metaAplicada - faturadoRealizado)}`;
       }
 
-      // Atualizar Cards KPIs
-      document.getElementById("kpiPipelineAberto").innerText = formatarMoeda(faturadoAberto);
-      document.getElementById("kpiQtdAberto").innerText = `${qtdAberto} ordens em rota / agendadas`;
+      // Atualização dos Cards KPIs Interativos
+      document.getElementById("kpiPipelineAberto").innerText = formatarMoedaBR(faturadoAberto);
+      document.getElementById("kpiQtdAberto").innerText = `${qtdAberto} ordens agendadas / em rota`;
 
       const ticketResiduo = qtdResiduo > 0 ? faturadoResiduo / qtdResiduo : 0;
-      document.getElementById("kpiTicketResiduo").innerText = formatarMoeda(ticketResiduo);
-      document.getElementById("kpiQtdResiduo").innerText = `${qtdResiduo} atendimentos concluídos`;
+      document.getElementById("kpiTicketResiduo").innerText = formatarMoedaBR(ticketResiduo);
+      document.getElementById("kpiQtdResiduo").innerText = `${qtdResiduo} finalizados`;
 
       const ticketAgua = qtdAgua > 0 ? faturadoAgua / qtdAgua : 0;
-      document.getElementById("kpiTicketAgua").innerText = formatarMoeda(ticketAgua);
-      document.getElementById("kpiQtdAgua").innerText = `${qtdAgua} atendimentos concluídos`;
+      document.getElementById("kpiTicketAgua").innerText = formatarMoedaBR(ticketAgua);
+      document.getElementById("kpiQtdAgua").innerText = `${qtdAgua} finalizados`;
 
-      document.getElementById("kpiPerdaCancelado").innerText = formatarMoeda(faturadoCancelado);
-      document.getElementById("kpiQtdCancelado").innerText = `${qtdCancelado} serviços cancelados`;
+      document.getElementById("kpiPerdaCancelado").innerText = formatarMoedaBR(faturadoCancelado);
+      document.getElementById("kpiQtdCancelado").innerText = `${qtdCancelado} cancelamentos`;
 
-      document.getElementById("valorCategoriaResiduo").innerText = formatarMoeda(faturadoResiduo);
-      document.getElementById("valorCategoriaAgua").innerText = formatarMoeda(faturadoAgua);
+      document.getElementById("valorCategoriaResiduo").innerText = formatarMoedaBR(faturadoResiduo);
+      document.getElementById("valorCategoriaAgua").innerText = formatarMoedaBR(faturadoAgua);
 
-      // Renderizar Rankings
+      // Renderização dos Rankings
       renderizarRanking("listaTopVeiculos", porVeiculo, faturadoRealizado, "bg-cyan-500");
       renderizarRanking("listaTopMotoristas", porMotorista, faturadoRealizado, "bg-emerald-500");
       renderizarRanking("listaTopClientes", porCliente, faturadoRealizado, "bg-purple-500");
 
-      // Atualizar Gráficos
+      // Atualização dos Gráficos
       atualizarGraficoCategoria(faturadoResiduo, faturadoAgua);
       atualizarGraficoEvolucao();
     }
@@ -554,7 +575,7 @@
         .slice(0, 5);
 
       if (entradas.length === 0) {
-        container.innerHTML = `<p class="text-slate-500 text-center py-4">Nenhum registro para o período.</p>`;
+        container.innerHTML = `<p class="text-slate-500 text-center py-4">Nenhum registro finalizado no período.</p>`;
         return;
       }
 
@@ -572,7 +593,7 @@
               <span class="font-medium text-slate-200 truncate pr-2">
                 <span class="font-mono-num text-slate-500 mr-1">#${index + 1}</span> ${nome}
               </span>
-              <span class="font-mono-num font-bold text-white whitespace-nowrap">${formatarMoeda(val)}</span>
+              <span class="font-mono-num font-bold text-white whitespace-nowrap">${formatarMoedaBR(val)}</span>
             </div>
             <div class="flex items-center gap-2">
               <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
@@ -629,7 +650,7 @@
                 label: function(context) {
                   const val = context.raw || 0;
                   const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                  return ` ${context.label}: ${formatarMoeda(val)} (${pct}%)`;
+                  return ` ${context.label}: ${formatarMoedaBR(val)} (${pct}%)`;
                 }
               }
             }
@@ -660,11 +681,10 @@
 
           if (anoFiltro !== "todos" && ano !== anoFiltro) return;
           if (mesIdx >= 0 && mesIdx < 12) {
-            valores[mesIdx] += parseValor(s.valor);
+            valores[mesIdx] += normalizarParaMoedaBR(s.valor);
           }
         });
       } else {
-        // Visão Semanal (Semanas 1 a 5 do mês selecionado)
         labels = ["Semana 1 (1-7)", "Semana 2 (8-14)", "Semana 3 (15-21)", "Semana 4 (22-28)", "Semana 5 (29+)"];
         valores = new Array(5).fill(0);
 
@@ -678,15 +698,15 @@
           if (anoFiltro !== "todos" && ano !== anoFiltro) return;
           if (mesFiltro !== "todos" && mes !== mesFiltro) return;
 
-          if (dia <= 7) valores[0] += parseValor(s.valor);
-          else if (dia <= 14) valores[1] += parseValor(s.valor);
-          else if (dia <= 21) valores[2] += parseValor(s.valor);
-          else if (dia <= 28) valores[3] += parseValor(s.valor);
-          else valores[4] += parseValor(s.valor);
+          const val = normalizarParaMoedaBR(s.valor);
+          if (dia <= 7) valores[0] += val;
+          else if (dia <= 14) valores[1] += val;
+          else if (dia <= 21) valores[2] += val;
+          else if (dia <= 28) valores[3] += val;
+          else valores[4] += val;
         });
       }
 
-      // Gradiente Neon
       const gradient = ctx.createLinearGradient(0, 0, 0, 280);
       gradient.addColorStop(0, "rgba(6, 182, 212, 0.45)");
       gradient.addColorStop(1, "rgba(6, 182, 212, 0.0)");
@@ -735,7 +755,7 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return " Faturado: " + formatarMoeda(context.raw || 0);
+                  return " Faturado: " + formatarMoedaBR(context.raw || 0);
                 }
               }
             }
