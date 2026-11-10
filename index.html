@@ -13,7 +13,7 @@
       .no-print { display: none !important; }
       body { background: white !important; }
       .print-shadow-none { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
-      .painel-fixo { position: static !important; }
+      .painel-fixo-total { position: static !important; }
     }
     .linha-cancelada {
       background-color: #fef2f2 !important;
@@ -26,21 +26,21 @@
       text-decoration: line-through;
       opacity: 0.75;
     }
-    /* Limite de largura unificado para a tela inteira */
+    /* Limite unificado de largura */
     .layout-centralizado {
       max-width: 1440px;
       margin-left: auto;
       margin-right: auto;
     }
-    /* Estilização para fixar o topo no scroll */
-    .painel-fixo {
+    /* Congelamento total desde o Banner até as abas/filtros */
+    .painel-fixo-total {
       position: sticky;
       top: 0;
-      z-index: 40;
+      z-index: 50;
       background-color: #f1f5f9;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     }
-    /* Tabela fluida sem quebra vertical de palavras */
+    /* Tabelas fluidas */
     .tabela-fluida {
       width: 100%;
       table-layout: auto;
@@ -58,23 +58,23 @@
 </head>
 <body id="corpoPagina" class="bg-slate-200/60 text-slate-800 min-h-screen">
 
-  <!-- WRAPPER CENTRALIZADO QUE ALINHA TUDO PERFEITAMENTE -->
-  <div class="layout-centralizado bg-slate-100 shadow-2xl min-h-screen">
+  <div class="layout-centralizado bg-slate-100 shadow-2xl min-h-screen flex flex-col">
 
-    <!-- BANNER COM PROPORÇÃO ORIGINAL TOTALMENTE VISÍVEL -->
-    <div class="w-full bg-slate-950 overflow-hidden flex justify-center">
-      <img 
-        src="banner_jm.jpg" 
-        alt="JM Ambiental - Gestão de Frota e Agenda" 
-        class="w-full h-auto block select-none"
-        style="max-width: 100%; height: auto; display: block;"
-        onerror="this.style.display='none'"
-      />
-    </div>
+    <!-- BLOCO TOTALMENTE FIXO / CONGELADO AO ROLAR (DESDE O BANNER ATÉ OS FILTROS) -->
+    <div class="painel-fixo-total border-b border-slate-300">
+      
+      <!-- 1. Imagem do Banner -->
+      <div class="w-full bg-slate-950 overflow-hidden flex justify-center border-b border-slate-800">
+        <img 
+          src="banner_jm.jpg" 
+          alt="JM Ambiental - Gestão de Frota e Agenda" 
+          class="w-full h-auto block select-none"
+          style="max-width: 100%; height: auto; display: block;"
+          onerror="this.style.display='none'"
+        />
+      </div>
 
-    <!-- BLOCO FIXO / CONGELADO AO ROLAR A PÁGINA -->
-    <div class="painel-fixo border-b border-slate-300">
-      <!-- Barra de Controles e Filtros -->
+      <!-- 2. Barra de Navegação e Filtros Principais -->
       <header class="bg-slate-900 text-white shadow-md">
         <div class="px-4 py-2 flex flex-wrap items-center justify-between gap-2.5">
           <div class="flex items-center gap-2">
@@ -128,49 +128,53 @@
             <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-slate-700" title="Imprimir">
               <i class="ph ph-printer text-base"></i>
             </button>
+
+            <a href="financeiro.html" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition" title="Painel Financeiro">
+              <i class="ph ph-chart-line-up text-base"></i> Financeiro
+            </a>
           </div>
         </div>
       </header>
 
-      <!-- Cards de KPIs e Navegação Fixos -->
-      <div class="px-4 pt-3 pb-2 space-y-2.5">
+      <!-- 3. Cards de KPIs e Navegação Fixos -->
+      <div class="px-4 pt-2.5 pb-2 space-y-2">
         <div id="gridKPIs" class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
-          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
               <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Frota Total</p>
-              <h3 id="kpiTotalFrota" class="text-lg md:text-xl font-black text-slate-800">12</h3>
+              <h3 id="kpiTotalFrota" class="text-lg font-black text-slate-800">12</h3>
             </div>
             <span class="p-1.5 bg-slate-100 rounded-lg text-slate-600 text-base"><i class="ph ph-truck"></i></span>
           </div>
 
-          <div class="bg-white p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
+          <div class="bg-white p-2 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
             <div>
               <p class="text-[10px] uppercase tracking-wider font-bold text-emerald-600">Disponíveis</p>
-              <h3 id="kpiDisponivel" class="text-lg md:text-xl font-black text-emerald-700">0</h3>
+              <h3 id="kpiDisponivel" class="text-lg font-black text-emerald-700">0</h3>
             </div>
             <span class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg text-base"><i class="ph ph-check-circle"></i></span>
           </div>
 
-          <div class="bg-white p-2.5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
+          <div class="bg-white p-2 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
             <div>
               <p class="text-[10px] uppercase tracking-wider font-bold text-blue-600">Em Atendimento</p>
-              <h3 id="kpiEmServico" class="text-lg md:text-xl font-black text-blue-700">0</h3>
+              <h3 id="kpiEmServico" class="text-lg font-black text-blue-700">0</h3>
             </div>
             <span class="p-1.5 bg-blue-100 text-blue-600 rounded-lg text-base"><i class="ph ph-steering-wheel"></i></span>
           </div>
 
-          <div class="bg-white p-2.5 rounded-xl border border-rose-200 bg-rose-50/20 shadow-sm flex items-center justify-between">
+          <div class="bg-white p-2 rounded-xl border border-rose-200 bg-rose-50/20 shadow-sm flex items-center justify-between">
             <div>
               <p class="text-[10px] uppercase tracking-wider font-bold text-rose-600">Manutenção</p>
-              <h3 id="kpiManutencao" class="text-lg md:text-xl font-black text-rose-700">0</h3>
+              <h3 id="kpiManutencao" class="text-lg font-black text-rose-700">0</h3>
             </div>
             <span class="p-1.5 bg-rose-100 text-rose-600 rounded-lg text-base"><i class="ph ph-wrench"></i></span>
           </div>
 
-          <div class="bg-white p-2.5 rounded-xl border border-purple-200 bg-purple-50/20 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
+          <div class="bg-white p-2 rounded-xl border border-purple-200 bg-purple-50/20 shadow-sm flex items-center justify-between col-span-2 md:col-span-1">
             <div>
               <p class="text-[10px] uppercase tracking-wider font-bold text-purple-600">Agregado</p>
-              <h3 id="kpiAgregado" class="text-lg md:text-xl font-black text-purple-700">0</h3>
+              <h3 id="kpiAgregado" class="text-lg font-black text-purple-700">0</h3>
             </div>
             <span class="p-1.5 bg-purple-100 text-purple-600 rounded-lg text-base"><i class="ph ph-handshake"></i></span>
           </div>
@@ -198,10 +202,10 @@
       </div>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main id="containerPrincipal" class="px-4 py-4 space-y-4">
+    <!-- CONTEÚDO PRINCIPAL ROLÁVEL -->
+    <main id="containerPrincipal" class="px-4 py-4 space-y-4 flex-1">
 
-      <!-- MODO 1: CRONOGRAMA DIÁRIO -->
+      <!-- MODO 1: CRONOGRAMA DO DIA -->
       <section id="secaoLista" class="space-y-4">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
@@ -228,6 +232,7 @@
                   <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
                   <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
                   <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
+                  <th class="py-2.5 px-3 min-w-[110px]">Frequência</th>
                   <th class="py-2.5 px-3 min-w-[140px]">Status</th>
                   <th class="py-2.5 px-3 sem-quebra">Valor</th>
                   <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
@@ -253,26 +258,97 @@
         <div id="gridVeiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
-      <!-- MODO 3: HISTÓRICO GERAL -->
+      <!-- MODO 3: HISTÓRICO GERAL COM FILTROS AVANÇADOS POR COLUNA -->
       <section id="secaoHistorico" class="space-y-4 hidden">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-              <i class="ph ph-database text-blue-600"></i> Todos os Agendamentos da Planilha
-            </h3>
-            <span id="contagemGeralBadge" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full"></span>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
+          
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                <i class="ph ph-database text-blue-600"></i> Todos os Agendamentos da Planilha
+              </h3>
+              <p class="text-xs text-slate-400">Filtre rapidamente por qualquer coluna abaixo</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="contagemGeralBadge" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full"></span>
+              <button onclick="limparFiltrosGerais()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold px-2 py-1 rounded hover:bg-blue-50 transition" title="Limpar todos os filtros">
+                Limpar Filtros
+              </button>
+            </div>
           </div>
 
+          <!-- BARRA DE FILTROS POR COLUNA (PRIMEIRO AJUSTE) -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-xs no-print">
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cliente / Local</label>
+              <input type="text" id="filtroColCliente" oninput="renderizarHistoricoGeral()" placeholder="Buscar cliente..." class="w-full p-1.5 bg-white border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 text-xs" />
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Veículo</label>
+              <select id="filtroColVeiculo" onchange="renderizarHistoricoGeral()" class="w-full p-1.5 bg-white border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 text-xs">
+                <option value="todos">Todos</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Equipe</label>
+              <select id="filtroColEquipe" onchange="renderizarHistoricoGeral()" class="w-full p-1.5 bg-white border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 text-xs">
+                <option value="todos">Todas</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Serviço</label>
+              <select id="filtroColServico" onchange="renderizarHistoricoGeral()" class="w-full p-1.5 bg-white border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 text-xs">
+                <option value="todos">Todos</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Frequência</label>
+              <select id="filtroColFrequencia" onchange="renderizarHistoricoGeral()" class="w-full p-1.5 bg-white border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 text-xs">
+                <option value="todos">Todas</option>
+                <option value="Semanal">Semanal</option>
+                <option value="Mensal">Mensal</option>
+                <option value="Bimestral">Bimestral</option>
+                <option value="Semestral">Semestral</option>
+                <option value="Anual">Anual</option>
+                <option value="Sazonal">Sazonal</option>
+                <option value="Contrato">Contrato</option>
+                <option value="Emergência">Emergência</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Status</label>
+              <select id="filtroColStatus" onchange="renderizarHistoricoGeral()" class="w-full p-1.5 bg-white border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 text-xs">
+                <option value="todos">Todos</option>
+                <option value="Agendado">Agendado</option>
+                <option value="Em deslocamento">Em deslocamento</option>
+                <option value="No Local">No Local</option>
+                <option value="Finalizado">Finalizado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- TABELA COM COLUNA FREQUÊNCIA (SEGUNDO AJUSTE) -->
           <div class="w-full overflow-x-auto">
             <table class="tabela-fluida text-left text-xs">
               <thead>
                 <tr class="bg-slate-100/70 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
-                  <th class="py-2.5 px-3 sem-quebra">Data</th>
-                  <th class="py-2.5 px-3 sem-quebra">Horário</th>
+                  <th class="py-2.5 px-3 sem-quebra cursor-pointer select-none" onclick="alternarOrdenacaoGeral('data')">
+                    Data <i class="ph ph-arrows-down-up text-[10px]"></i>
+                  </th>
+                  <th class="py-2.5 px-3 sem-quebra cursor-pointer select-none" onclick="alternarOrdenacaoGeral('hora')">
+                    Horário <i class="ph ph-arrows-down-up text-[10px]"></i>
+                  </th>
                   <th class="py-2.5 px-3 sem-quebra">Veículo</th>
                   <th class="py-2.5 px-3 min-w-[130px]">Equipe</th>
                   <th class="py-2.5 px-3 min-w-[200px]">Cliente / Local</th>
                   <th class="py-2.5 px-3 min-w-[120px]">Serviço</th>
+                  <th class="py-2.5 px-3 min-w-[110px]">Frequência</th>
                   <th class="py-2.5 px-3 min-w-[100px]">Status</th>
                   <th class="py-2.5 px-3 sem-quebra">Valor</th>
                   <th class="py-2.5 px-3 min-w-[180px]">Obs</th>
@@ -282,12 +358,14 @@
               <tbody id="corpoTabelaHistorico" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
+
         </div>
       </section>
+
     </main>
   </div>
 
-  <!-- MODAL DE NOVO / EDITAR SERVIÇO -->
+  <!-- MODAL DE NOVO / EDITAR SERVIÇO COM CAMPO FREQUÊNCIA -->
   <div id="modalServico" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden max-h-[90vh] flex flex-col">
       <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
@@ -338,6 +416,24 @@
             <label class="block font-medium text-slate-700 mb-1">Tipo de Serviço *</label>
             <select id="campoTipoServico" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></select>
           </div>
+          
+          <!-- CAMPO FREQUÊNCIA NOVO -->
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Frequência *</label>
+            <select id="campoFrequencia" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 font-medium">
+              <option value="Sazonal">Sazonal</option>
+              <option value="Semanal">Semanal</option>
+              <option value="Mensal">Mensal</option>
+              <option value="Bimestral">Bimestral</option>
+              <option value="Semestral">Semestral</option>
+              <option value="Anual">Anual</option>
+              <option value="Contrato" class="font-bold">Contrato (Negrito)</option>
+              <option value="Emergência" class="font-bold text-red-600">Emergência (Vermelho)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-medium text-slate-700 mb-1">Status</label>
             <select id="campoStatus" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
@@ -348,16 +444,15 @@
               <option value="Cancelado">Cancelado</option>
             </select>
           </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Valor Previsto (R$)</label>
+            <input type="number" step="0.01" id="campoValor" placeholder="0,00" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+          </div>
         </div>
 
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Valor Previsto (R$)</label>
-          <input type="number" step="0.01" id="campoValor" placeholder="0,00" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
-        </div>
-
-        <div>
-          <label class="block font-medium text-slate-700 mb-1">Observações</label>
-          <textarea id="campoObs" rows="2" placeholder="Ex: Sazonal, Contrato, 03 pessoas..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
+          <label class="block font-medium text-slate-700 mb-1">Observações Complementares</label>
+          <textarea id="campoObs" rows="2" placeholder="Ex: 03 pessoas, cano de 75..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
         </div>
 
         <div class="flex justify-end gap-2 pt-2 border-t">
@@ -380,6 +475,7 @@
     let agendamentos = [];
     let statusVeiculos = JSON.parse(localStorage.getItem("status_veiculos_jm") || "{}");
     let abaAtual = "lista";
+    let ordenacaoGeral = { campo: "data", desc: true };
 
     window.addEventListener("DOMContentLoaded", () => {
       const hoje = new Date().toISOString().split("T")[0];
@@ -390,6 +486,35 @@
       carregarDadosDoGoogleSheets();
     });
 
+    // Detecta frequência automática caso esteja anotada no OBS ou já exista
+    function identificarFrequencia(s) {
+      if (s.frequencia && s.frequencia.trim()) return s.frequencia.trim();
+
+      const obsTexto = (s.obs || "").toUpperCase();
+      if (obsTexto.includes("EMERGÊNCIA") || obsTexto.includes("EMERGENCIA")) return "Emergência";
+      if (obsTexto.includes("CONTRATO")) return "Contrato";
+      if (obsTexto.includes("SEMANAL")) return "Semanal";
+      if (obsTexto.includes("BIMESTRAL")) return "Bimestral";
+      if (obsTexto.includes("SEMESTRAL")) return "Semestral";
+      if (obsTexto.includes("MENSAL")) return "Mensal";
+      if (obsTexto.includes("ANUAL")) return "Anual";
+      if (obsTexto.includes("SAZONAL")) return "Sazonal";
+
+      return "Sazonal"; // Padrão
+    }
+
+    // Estilização com regra de negócio (Contrato em negrito, Emergência em negrito e vermelho)
+    function renderizarBadgeFrequencia(freq) {
+      const f = (freq || "Sazonal").trim();
+      if (f === "Emergência") {
+        return `<span class="font-extrabold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">Emergência</span>`;
+      }
+      if (f === "Contrato") {
+        return `<span class="font-black text-slate-900 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">Contrato</span>`;
+      }
+      return `<span class="font-medium text-slate-700 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded text-[11px]">${f}</span>`;
+    }
+
     function aplicarFiltroPeriodo() {
       const mes = document.getElementById("filtroMes").value;
       const ano = document.getElementById("filtroAno").value;
@@ -398,6 +523,26 @@
         document.getElementById("filtroData").value = `${ano}-${mes}-01`;
       }
       renderizarTudo();
+    }
+
+    function limparFiltrosGerais() {
+      document.getElementById("filtroColCliente").value = "";
+      document.getElementById("filtroColVeiculo").value = "todos";
+      document.getElementById("filtroColEquipe").value = "todos";
+      document.getElementById("filtroColServico").value = "todos";
+      document.getElementById("filtroColFrequencia").value = "todos";
+      document.getElementById("filtroColStatus").value = "todos";
+      renderizarHistoricoGeral();
+    }
+
+    function alternarOrdenacaoGeral(campo) {
+      if (ordenacaoGeral.campo === campo) {
+        ordenacaoGeral.desc = !ordenacaoGeral.desc;
+      } else {
+        ordenacaoGeral.campo = campo;
+        ordenacaoGeral.desc = true;
+      }
+      renderizarHistoricoGeral();
     }
 
     async function carregarDadosDoGoogleSheets() {
@@ -423,6 +568,7 @@
           localStorage.setItem("cache_agenda", JSON.stringify(agendamentos));
 
           popularSelects();
+          popularFiltrosColunas();
           badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-emerald-900/60 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5";
           badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado (${agendamentos.length} ordens)`;
           renderizarTudo();
@@ -436,6 +582,7 @@
         agendamentos = JSON.parse(localStorage.getItem("cache_agenda") || "[]");
 
         popularSelects();
+        popularFiltrosColunas();
         badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-rose-900/60 text-rose-300 border border-rose-500/30 flex items-center gap-1.5";
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Modo Offline`;
         renderizarTudo();
@@ -461,6 +608,17 @@
       selServico.innerHTML = baseServicos.map(s => 
         `<option value="${s}">${s}</option>`
       ).join("");
+    }
+
+    function popularFiltrosColunas() {
+      const selV = document.getElementById("filtroColVeiculo");
+      selV.innerHTML = `<option value="todos">Todos</option>` + baseVeiculos.map(v => `<option value="${v.placa}">${v.placa}</option>`).join("");
+
+      const selM = document.getElementById("filtroColEquipe");
+      selM.innerHTML = `<option value="todos">Todas</option>` + baseMotoristas.map(m => `<option value="${m}">${m}</option>`).join("");
+
+      const selS = document.getElementById("filtroColServico");
+      selS.innerHTML = `<option value="todos">Todos</option>` + baseServicos.map(s => `<option value="${s}">${s}</option>`).join("");
     }
 
     function alternarAba(aba) {
@@ -635,6 +793,7 @@
         const vInfo = baseVeiculos.find(v => v.placa === s.veiculo) || { tipo: "Resíduo" };
         const tipoBadge = vInfo.tipo === 'Água Potável' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800';
         const isCancelado = s.status === "Cancelado";
+        const frequencia = identificarFrequencia(s);
 
         const statusColors = {
           "Agendado": "bg-slate-100 text-slate-700 border-slate-300",
@@ -664,6 +823,7 @@
               <span class="${isCancelado ? 'texto-riscado' : ''}">${s.cliente}</span>
             </td>
             <td class="py-2.5 px-3 text-[11px] font-semibold text-slate-600">${s.tipoServico}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">${renderizarBadgeFrequencia(frequencia)}</td>
             
             <td class="py-2.5 px-3 sem-quebra">
               <select onchange="atualizarStatusServico('${s.linha || ''}', '${s.id}', this.value)" class="text-[11px] px-2 py-1 rounded-md border focus:outline-none cursor-pointer w-full ${statusColors}">
@@ -701,8 +861,17 @@
       const filtroMes = document.getElementById("filtroMes").value;
       const filtroAno = document.getElementById("filtroAno").value;
 
+      // Filtros por Colunas
+      const fCliente = (document.getElementById("filtroColCliente")?.value || "").toLowerCase().trim();
+      const fVeiculo = document.getElementById("filtroColVeiculo")?.value || "todos";
+      const fEquipe = document.getElementById("filtroColEquipe")?.value || "todos";
+      const fServico = document.getElementById("filtroColServico")?.value || "todos";
+      const fFreq = document.getElementById("filtroColFrequencia")?.value || "todos";
+      const fStatus = document.getElementById("filtroColStatus")?.value || "todos";
+
       let filtrados = [...agendamentos];
 
+      // Filtros de Mês e Ano
       if (filtroAno !== "todos") {
         filtrados = filtrados.filter(s => (s.data || "").startsWith(filtroAno));
       }
@@ -713,17 +882,48 @@
         });
       }
 
+      // Filtros de cada coluna
+      if (fCliente) {
+        filtrados = filtrados.filter(s => (s.cliente || "").toLowerCase().includes(fCliente));
+      }
+      if (fVeiculo !== "todos") {
+        filtrados = filtrados.filter(s => s.veiculo === fVeiculo);
+      }
+      if (fEquipe !== "todos") {
+        filtrados = filtrados.filter(s => s.motorista === fEquipe || s.ajudante === fEquipe);
+      }
+      if (fServico !== "todos") {
+        filtrados = filtrados.filter(s => s.tipoServico === fServico);
+      }
+      if (fFreq !== "todos") {
+        filtrados = filtrados.filter(s => identificarFrequencia(s) === fFreq);
+      }
+      if (fStatus !== "todos") {
+        filtrados = filtrados.filter(s => (s.status || "Agendado") === fStatus);
+      }
+
       document.getElementById("contagemGeralBadge").innerText = `${filtrados.length} registros exibidos`;
 
-      const ordenados = filtrados.sort((a,b) => ((b.data || "") + (b.hora || "")).localeCompare((a.data || "") + (a.hora || "")));
+      // Ordenação
+      filtrados.sort((a,b) => {
+        let valA = a[ordenacaoGeral.campo] || "";
+        let valB = b[ordenacaoGeral.campo] || "";
+        if (ordenacaoGeral.campo === "data") {
+          valA = (a.data || "") + (a.hora || "");
+          valB = (b.data || "") + (b.hora || "");
+        }
+        return ordenacaoGeral.desc ? valB.localeCompare(valA) : valA.localeCompare(valB);
+      });
 
-      if (ordenados.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-400">Nenhum registro encontrado no período selecionado.</td></tr>`;
+      if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 text-slate-400">Nenhum registro encontrado com os filtros aplicados.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = ordenados.map(s => {
+      tbody.innerHTML = filtrados.map(s => {
         const isCancelado = s.status === "Cancelado";
+        const frequencia = identificarFrequencia(s);
+
         return `
           <tr class="${isCancelado ? 'linha-cancelada' : 'hover:bg-slate-50'} transition border-b border-slate-100">
             <td class="py-2.5 px-3 font-semibold text-slate-700 sem-quebra">${formatarDataBR(s.data)}</td>
@@ -732,6 +932,7 @@
             <td class="py-2.5 px-3 text-slate-600"><b>${s.motorista}</b>${s.ajudante ? ' <span class="text-slate-500 font-normal">(' + s.ajudante + ')</span>' : ''}</td>
             <td class="py-2.5 px-3 font-semibold text-slate-900">${s.cliente}</td>
             <td class="py-2.5 px-3 text-slate-600">${s.tipoServico}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">${renderizarBadgeFrequencia(frequencia)}</td>
             <td class="py-2.5 px-3 font-bold sem-quebra">${s.status || 'Agendado'}</td>
             <td class="py-2.5 px-3 font-bold text-emerald-700 sem-quebra">${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}</td>
             <td class="py-2.5 px-3 text-slate-500" title="${s.obs || ''}">${s.obs || '-'}</td>
@@ -763,6 +964,7 @@
       document.getElementById("campoAjudante").value = s.ajudante || "";
       document.getElementById("campoCliente").value = s.cliente;
       document.getElementById("campoTipoServico").value = s.tipoServico;
+      document.getElementById("campoFrequencia").value = identificarFrequencia(s);
       document.getElementById("campoStatus").value = s.status || "Agendado";
       document.getElementById("campoValor").value = s.valor || "";
       document.getElementById("campoObs").value = s.obs || "";
@@ -808,6 +1010,7 @@
       document.getElementById("servicoId").value = "";
       document.getElementById("servicoLinha").value = "";
       document.getElementById("campoData").value = document.getElementById("filtroData").value;
+      document.getElementById("campoFrequencia").value = "Sazonal";
       document.getElementById("modalTitulo").innerHTML = `<i class="ph ph-notepad text-blue-400"></i> Agendar Serviço no Google Sheets`;
       document.getElementById("btnSalvarModal").innerText = "Salvar no Google Sheets";
 
@@ -829,74 +1032,7 @@
 
       const servicoId = document.getElementById("servicoId").value;
       const servicoLinha = document.getElementById("servicoLinha").value;
+      const frequenciaEscolhida = document.getElementById("campoFrequencia").value;
 
       const dadosServico = {
-        data: document.getElementById("campoData").value,
-        hora: document.getElementById("campoHora").value,
-        veiculo: document.getElementById("campoVeiculo").value,
-        motorista: document.getElementById("campoMotorista").value,
-        ajudante: document.getElementById("campoAjudante").value,
-        cliente: document.getElementById("campoCliente").value,
-        tipoServico: document.getElementById("campoTipoServico").value,
-        valor: document.getElementById("campoValor").value,
-        obs: document.getElementById("campoObs").value,
-        status: document.getElementById("campoStatus").value || "Agendado"
-      };
-
-      const isEdicao = Boolean(servicoId);
-
-      if (isEdicao) {
-        const index = agendamentos.findIndex(item => item.id === servicoId);
-        if (index !== -1) {
-          agendamentos[index] = { ...agendamentos[index], ...dadosServico };
-        }
-      } else {
-        agendamentos.push({ ...dadosServico, id: 'tmp_' + Date.now() });
-      }
-
-      renderizarTudo();
-      fecharModalServico();
-
-      try {
-        const payload = isEdicao 
-          ? { action: "editar", linha: servicoLinha, data: dadosServico }
-          : { action: "adicionar", data: dadosServico };
-
-        await fetch(URL_APPS_SCRIPT, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify(payload)
-        });
-        setTimeout(carregarDadosDoGoogleSheets, 1200);
-      } catch (err) {
-        console.error("Erro ao enviar ao Sheets:", err);
-      }
-
-      btnSalvar.disabled = false;
-      btnSalvar.innerText = "Salvar no Google Sheets";
-    }
-
-    async function excluirServico(linha, id) {
-      if (!confirm("Deseja realmente excluir este agendamento?")) return;
-
-      agendamentos = agendamentos.filter(s => s.id !== id);
-      renderizarTudo();
-
-      if (linha) {
-        try {
-          await fetch(URL_APPS_SCRIPT, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "excluir", linha: linha })
-          });
-          setTimeout(carregarDadosDoGoogleSheets, 1200);
-        } catch (err) {
-          console.error("Erro ao excluir do Sheets:", err);
-        }
-      }
-    }
-  </script>
-</body>
-</html>
+        data: document
