@@ -32,7 +32,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-    /* Congelamento total desde o Banner até as abas/filtros */
+    /* Congelamento total desde o Banner até os filtros */
     .painel-fixo-total {
       position: sticky;
       top: 0;
@@ -60,7 +60,7 @@
 
   <div class="layout-centralizado bg-slate-100 shadow-2xl min-h-screen flex flex-col">
 
-    <!-- BLOCO TOTALMENTE FIXO / CONGELADO AO ROLAR (DESDE O BANNER ATÉ OS FILTROS) -->
+    <!-- BLOCO TOTALMENTE FIXO / CONGELADO AO ROLAR -->
     <div class="painel-fixo-total border-b border-slate-300">
       
       <!-- 1. Imagem do Banner -->
@@ -78,7 +78,7 @@
       <header class="bg-slate-900 text-white shadow-md">
         <div class="px-4 py-2 flex flex-wrap items-center justify-between gap-2.5">
           <div class="flex items-center gap-2">
-            <span id="badgeConexao" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer" onclick="carregarDadosDoGoogleSheets()" title="Clique para sincronizar">
+            <span id="badgeConexao" class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer" onclick="carregarDadosDoGoogleSheets()" title="Clique para reconectar">
               <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...
             </span>
           </div>
@@ -258,7 +258,7 @@
         <div id="gridVeiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
-      <!-- MODO 3: HISTÓRICO GERAL COM FILTROS AVANÇADOS POR COLUNA -->
+      <!-- MODO 3: HISTÓRICO GERAL COM FILTROS AVANÇADOS -->
       <section id="secaoHistorico" class="space-y-4 hidden">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
           
@@ -277,7 +277,7 @@
             </div>
           </div>
 
-          <!-- BARRA DE FILTROS POR COLUNA (PRIMEIRO AJUSTE) -->
+          <!-- BARRA DE FILTROS POR COLUNA -->
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-xs no-print">
             <div>
               <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Cliente / Local</label>
@@ -333,7 +333,7 @@
             </div>
           </div>
 
-          <!-- TABELA COM COLUNA FREQUÊNCIA (SEGUNDO AJUSTE) -->
+          <!-- TABELA COM COLUNA FREQUÊNCIA -->
           <div class="w-full overflow-x-auto">
             <table class="tabela-fluida text-left text-xs">
               <thead>
@@ -365,7 +365,7 @@
     </main>
   </div>
 
-  <!-- MODAL DE NOVO / EDITAR SERVIÇO COM CAMPO FREQUÊNCIA -->
+  <!-- MODAL DE NOVO / EDITAR SERVIÇO -->
   <div id="modalServico" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden max-h-[90vh] flex flex-col">
       <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
@@ -417,7 +417,6 @@
             <select id="campoTipoServico" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></select>
           </div>
           
-          <!-- CAMPO FREQUÊNCIA NOVO -->
           <div>
             <label class="block font-medium text-slate-700 mb-1">Frequência *</label>
             <select id="campoFrequencia" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 font-medium">
@@ -468,6 +467,7 @@
   <script>
     const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz62qdZsggJCGqm-okOeqqMTeMZExkKGz45bicNHEtHX04pB0e6cex7bLgRrJVMe_dJ/exec";
 
+    // Bases sincronizadas
     let baseVeiculos = [];
     let baseServicos = [];
     let baseMotoristas = [];
@@ -478,15 +478,38 @@
     let ordenacaoGeral = { campo: "data", desc: true };
 
     window.addEventListener("DOMContentLoaded", () => {
+      // 1. Carrega imediatamente o cache local para nunca deixar a tela em branco
+      recuperarCacheLocal();
+
       const hoje = new Date().toISOString().split("T")[0];
       const campoDataFiltro = document.getElementById("filtroData");
-      campoDataFiltro.value = hoje;
-      campoDataFiltro.addEventListener("change", () => renderizarTudo());
+      if (campoDataFiltro) {
+        campoDataFiltro.value = hoje;
+        campoDataFiltro.addEventListener("change", () => renderizarTudo());
+      }
 
+      // 2. Dispara a busca remota no Google Sheets
       carregarDadosDoGoogleSheets();
     });
 
-    // Detecta frequência automática caso esteja anotada no OBS ou já exista
+    function recuperarCacheLocal() {
+      try {
+        baseVeiculos = JSON.parse(localStorage.getItem("cache_veiculos") || "[]");
+        baseServicos = JSON.parse(localStorage.getItem("cache_servicos") || "[]");
+        baseMotoristas = JSON.parse(localStorage.getItem("cache_motoristas") || "[]");
+        baseAjudantes = JSON.parse(localStorage.getItem("cache_ajudantes") || "[]");
+        agendamentos = JSON.parse(localStorage.getItem("cache_agenda") || "[]");
+
+        if (agendamentos.length > 0) {
+          popularSelects();
+          popularFiltrosColunas();
+          renderizarTudo();
+        }
+      } catch (e) {
+        console.warn("Sem cache inicial:", e);
+      }
+    }
+
     function identificarFrequencia(s) {
       if (s.frequencia && s.frequencia.trim()) return s.frequencia.trim();
 
@@ -500,10 +523,9 @@
       if (obsTexto.includes("ANUAL")) return "Anual";
       if (obsTexto.includes("SAZONAL")) return "Sazonal";
 
-      return "Sazonal"; // Padrão
+      return "Sazonal";
     }
 
-    // Estilização com regra de negócio (Contrato em negrito, Emergência em negrito e vermelho)
     function renderizarBadgeFrequencia(freq) {
       const f = (freq || "Sazonal").trim();
       if (f === "Emergência") {
@@ -547,11 +569,19 @@
 
     async function carregarDadosDoGoogleSheets() {
       const badge = document.getElementById("badgeConexao");
-      badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5";
+      badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer";
       badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...`;
 
+      // Timeout de segurança de 8 segundos
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
       try {
-        const res = await fetch(URL_APPS_SCRIPT + "?t=" + new Date().getTime());
+        const res = await fetch(URL_APPS_SCRIPT + "?t=" + new Date().getTime(), {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
         const json = await res.json();
 
         if (json.status === "success") {
@@ -569,56 +599,56 @@
 
           popularSelects();
           popularFiltrosColunas();
-          badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-emerald-900/60 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5";
+          badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-emerald-900/60 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 cursor-pointer";
           badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado (${agendamentos.length} ordens)`;
           renderizarTudo();
         }
       } catch (err) {
-        console.error("Erro na sincronização:", err);
-        baseVeiculos = JSON.parse(localStorage.getItem("cache_veiculos") || "[]");
-        baseServicos = JSON.parse(localStorage.getItem("cache_servicos") || "[]");
-        baseMotoristas = JSON.parse(localStorage.getItem("cache_motoristas") || "[]");
-        baseAjudantes = JSON.parse(localStorage.getItem("cache_ajudantes") || "[]");
-        agendamentos = JSON.parse(localStorage.getItem("cache_agenda") || "[]");
-
-        popularSelects();
-        popularFiltrosColunas();
-        badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-rose-900/60 text-rose-300 border border-rose-500/30 flex items-center gap-1.5";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Modo Offline`;
-        renderizarTudo();
+        console.warn("Sincronização remota pendente, mantendo dados locais:", err);
+        recuperarCacheLocal();
+        badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1.5 cursor-pointer";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Modo Local (${agendamentos.length} ordens)`;
       }
     }
 
     function popularSelects() {
       const selVeiculo = document.getElementById("campoVeiculo");
-      selVeiculo.innerHTML = baseVeiculos.map(v => 
-        `<option value="${v.placa}">${v.placa} - ${v.tipo} (${(v.cap/1000).toLocaleString('pt-BR')}m³)</option>`
-      ).join("");
+      if (selVeiculo) {
+        selVeiculo.innerHTML = baseVeiculos.map(v => 
+          `<option value="${v.placa}">${v.placa} - ${v.tipo} (${(v.cap/1000).toLocaleString('pt-BR')}m³)</option>`
+        ).join("");
+      }
 
       const selMotorista = document.getElementById("campoMotorista");
-      selMotorista.innerHTML = baseMotoristas.map(m => 
-        `<option value="${m}">${m}</option>`
-      ).join("");
+      if (selMotorista) {
+        selMotorista.innerHTML = baseMotoristas.map(m => 
+          `<option value="${m}">${m}</option>`
+        ).join("");
+      }
 
       const selAjudante = document.getElementById("campoAjudante");
-      selAjudante.innerHTML = `<option value="">Nenhum</option>` + 
-        baseAjudantes.map(a => `<option value="${a}">${a}</option>`).join("");
+      if (selAjudante) {
+        selAjudante.innerHTML = `<option value="">Nenhum</option>` + 
+          baseAjudantes.map(a => `<option value="${a}">${a}</option>`).join("");
+      }
 
       const selServico = document.getElementById("campoTipoServico");
-      selServico.innerHTML = baseServicos.map(s => 
-        `<option value="${s}">${s}</option>`
-      ).join("");
+      if (selServico) {
+        selServico.innerHTML = baseServicos.map(s => 
+          `<option value="${s}">${s}</option>`
+        ).join("");
+      }
     }
 
     function popularFiltrosColunas() {
       const selV = document.getElementById("filtroColVeiculo");
-      selV.innerHTML = `<option value="todos">Todos</option>` + baseVeiculos.map(v => `<option value="${v.placa}">${v.placa}</option>`).join("");
+      if (selV) selV.innerHTML = `<option value="todos">Todos</option>` + baseVeiculos.map(v => `<option value="${v.placa}">${v.placa}</option>`).join("");
 
       const selM = document.getElementById("filtroColEquipe");
-      selM.innerHTML = `<option value="todos">Todas</option>` + baseMotoristas.map(m => `<option value="${m}">${m}</option>`).join("");
+      if (selM) selM.innerHTML = `<option value="todos">Todas</option>` + baseMotoristas.map(m => `<option value="${m}">${m}</option>`).join("");
 
       const selS = document.getElementById("filtroColServico");
-      selS.innerHTML = `<option value="todos">Todos</option>` + baseServicos.map(s => `<option value="${s}">${s}</option>`).join("");
+      if (selS) selS.innerHTML = `<option value="todos">Todos</option>` + baseServicos.map(s => `<option value="${s}">${s}</option>`).join("");
     }
 
     function alternarAba(aba) {
@@ -644,8 +674,9 @@
     }
 
     function renderizarTudo() {
-      const dataSelecionada = document.getElementById("filtroData").value;
-      document.getElementById("dataTituloLista").innerText = formatarDataBR(dataSelecionada);
+      const dataSelecionada = document.getElementById("filtroData")?.value || "";
+      const tituloLista = document.getElementById("dataTituloLista");
+      if (tituloLista) tituloLista.innerText = formatarDataBR(dataSelecionada);
 
       renderizarKPIsEGrid();
       renderizarListaDoDia();
@@ -653,7 +684,7 @@
     }
 
     function renderizarKPIsEGrid() {
-      const dataSelecionada = document.getElementById("filtroData").value;
+      const dataSelecionada = document.getElementById("filtroData")?.value || "";
       const servicosDoDia = agendamentos.filter(a => a.data === dataSelecionada && a.status !== "Cancelado");
 
       let countDisponivel = 0;
@@ -662,6 +693,7 @@
       let countAgregado = 0;
 
       const grid = document.getElementById("gridVeiculos");
+      if (!grid) return;
       grid.innerHTML = "";
 
       baseVeiculos.forEach(veiculo => {
@@ -754,7 +786,7 @@
     }
 
     function renderizarListaDoDia() {
-      const dataSelecionada = document.getElementById("filtroData").value;
+      const dataSelecionada = document.getElementById("filtroData")?.value || "";
       const textoFiltro = (document.getElementById("filtroTexto")?.value || "").toLowerCase();
 
       let servicos = agendamentos.filter(a => a.data === dataSelecionada);
@@ -778,7 +810,11 @@
       const badgeResumo = document.getElementById("resumoAtendimentosBadge");
 
       const servicosAtivos = servicos.filter(s => s.status !== "Cancelado");
-      const totalValor = servicosAtivos.reduce((acc, curr) => acc + (parseFloat(curr.valor) || 0), 0);
+      const totalValor = servicosAtivos.reduce((acc, curr) => {
+        let v = String(curr.valor || "").replace("R$", "").replace(/\./g, "").replace(",", ".").trim();
+        return acc + (parseFloat(v) || 0);
+      }, 0);
+
       badgeResumo.innerHTML = `<i class="ph ph-check-circle text-emerald-600"></i> ${servicosAtivos.length} ativas (${servicos.length - servicosAtivos.length} canc.) • Total: R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
 
       if (servicos.length === 0) {
@@ -836,7 +872,7 @@
             </td>
 
             <td class="py-2.5 px-3 font-bold ${isCancelado ? 'text-rose-800 texto-riscado' : 'text-emerald-700'} sem-quebra">
-              ${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}
+              ${s.valor ? `R$ ${parseFloat(String(s.valor).replace('R$', '').replace(/\./g, '').replace(',', '.')).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}
             </td>
             <td class="py-2.5 px-3 text-[11px] text-slate-500" title="${s.obs || ''}">
               ${isCancelado ? '<b class="text-rose-700">[CANCELADO]</b> ' : ''}${s.obs || '-'}
@@ -858,10 +894,11 @@
 
     function renderizarHistoricoGeral() {
       const tbody = document.getElementById("corpoTabelaHistorico");
-      const filtroMes = document.getElementById("filtroMes").value;
-      const filtroAno = document.getElementById("filtroAno").value;
+      if (!tbody) return;
 
-      // Filtros por Colunas
+      const filtroMes = document.getElementById("filtroMes")?.value || "todos";
+      const filtroAno = document.getElementById("filtroAno")?.value || "todos";
+
       const fCliente = (document.getElementById("filtroColCliente")?.value || "").toLowerCase().trim();
       const fVeiculo = document.getElementById("filtroColVeiculo")?.value || "todos";
       const fEquipe = document.getElementById("filtroColEquipe")?.value || "todos";
@@ -871,7 +908,6 @@
 
       let filtrados = [...agendamentos];
 
-      // Filtros de Mês e Ano
       if (filtroAno !== "todos") {
         filtrados = filtrados.filter(s => (s.data || "").startsWith(filtroAno));
       }
@@ -882,29 +918,15 @@
         });
       }
 
-      // Filtros de cada coluna
-      if (fCliente) {
-        filtrados = filtrados.filter(s => (s.cliente || "").toLowerCase().includes(fCliente));
-      }
-      if (fVeiculo !== "todos") {
-        filtrados = filtrados.filter(s => s.veiculo === fVeiculo);
-      }
-      if (fEquipe !== "todos") {
-        filtrados = filtrados.filter(s => s.motorista === fEquipe || s.ajudante === fEquipe);
-      }
-      if (fServico !== "todos") {
-        filtrados = filtrados.filter(s => s.tipoServico === fServico);
-      }
-      if (fFreq !== "todos") {
-        filtrados = filtrados.filter(s => identificarFrequencia(s) === fFreq);
-      }
-      if (fStatus !== "todos") {
-        filtrados = filtrados.filter(s => (s.status || "Agendado") === fStatus);
-      }
+      if (fCliente) filtrados = filtrados.filter(s => (s.cliente || "").toLowerCase().includes(fCliente));
+      if (fVeiculo !== "todos") filtrados = filtrados.filter(s => s.veiculo === fVeiculo);
+      if (fEquipe !== "todos") filtrados = filtrados.filter(s => s.motorista === fEquipe || s.ajudante === fEquipe);
+      if (fServico !== "todos") filtrados = filtrados.filter(s => s.tipoServico === fServico);
+      if (fFreq !== "todos") filtrados = filtrados.filter(s => identificarFrequencia(s) === fFreq);
+      if (fStatus !== "todos") filtrados = filtrados.filter(s => (s.status || "Agendado") === fStatus);
 
       document.getElementById("contagemGeralBadge").innerText = `${filtrados.length} registros exibidos`;
 
-      // Ordenação
       filtrados.sort((a,b) => {
         let valA = a[ordenacaoGeral.campo] || "";
         let valB = b[ordenacaoGeral.campo] || "";
@@ -934,7 +956,7 @@
             <td class="py-2.5 px-3 text-slate-600">${s.tipoServico}</td>
             <td class="py-2.5 px-3 whitespace-nowrap">${renderizarBadgeFrequencia(frequencia)}</td>
             <td class="py-2.5 px-3 font-bold sem-quebra">${s.status || 'Agendado'}</td>
-            <td class="py-2.5 px-3 font-bold text-emerald-700 sem-quebra">${s.valor ? `R$ ${parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}</td>
+            <td class="py-2.5 px-3 font-bold text-emerald-700 sem-quebra">${s.valor ? `R$ ${parseFloat(String(s.valor).replace('R$', '').replace(/\./g, '').replace(',', '.')).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}</td>
             <td class="py-2.5 px-3 text-slate-500" title="${s.obs || ''}">${s.obs || '-'}</td>
             <td class="py-2.5 px-2 text-center no-print sem-quebra">
               <div class="flex items-center justify-center gap-1.5">
@@ -966,7 +988,7 @@
       document.getElementById("campoTipoServico").value = s.tipoServico;
       document.getElementById("campoFrequencia").value = identificarFrequencia(s);
       document.getElementById("campoStatus").value = s.status || "Agendado";
-      document.getElementById("campoValor").value = s.valor || "";
+      document.getElementById("campoValor").value = s.valor ? String(s.valor).replace('R$', '').replace(/\./g, '').replace(',', '.').trim() : "";
       document.getElementById("campoObs").value = s.obs || "";
 
       document.getElementById("modalTitulo").innerHTML = `<i class="ph ph-pencil-simple text-blue-400"></i> Editar Agendamento`;
@@ -1009,7 +1031,7 @@
       document.getElementById("formServico").reset();
       document.getElementById("servicoId").value = "";
       document.getElementById("servicoLinha").value = "";
-      document.getElementById("campoData").value = document.getElementById("filtroData").value;
+      document.getElementById("campoData").value = document.getElementById("filtroData")?.value || "";
       document.getElementById("campoFrequencia").value = "Sazonal";
       document.getElementById("modalTitulo").innerHTML = `<i class="ph ph-notepad text-blue-400"></i> Agendar Serviço no Google Sheets`;
       document.getElementById("btnSalvarModal").innerText = "Salvar no Google Sheets";
@@ -1035,4 +1057,73 @@
       const frequenciaEscolhida = document.getElementById("campoFrequencia").value;
 
       const dadosServico = {
-        data: document
+        data: document.getElementById("campoData").value,
+        hora: document.getElementById("campoHora").value,
+        veiculo: document.getElementById("campoVeiculo").value,
+        motorista: document.getElementById("campoMotorista").value,
+        ajudante: document.getElementById("campoAjudante").value,
+        cliente: document.getElementById("campoCliente").value,
+        tipoServico: document.getElementById("campoTipoServico").value,
+        frequencia: frequenciaEscolhida,
+        valor: document.getElementById("campoValor").value,
+        obs: document.getElementById("campoObs").value,
+        status: document.getElementById("campoStatus").value || "Agendado"
+      };
+
+      const isEdicao = Boolean(servicoId);
+
+      if (isEdicao) {
+        const index = agendamentos.findIndex(item => item.id === servicoId);
+        if (index !== -1) {
+          agendamentos[index] = { ...agendamentos[index], ...dadosServico };
+        }
+      } else {
+        agendamentos.push({ ...dadosServico, id: 'tmp_' + Date.now() });
+      }
+
+      renderizarTudo();
+      fecharModalServico();
+
+      try {
+        const payload = isEdicao 
+          ? { action: "editar", linha: servicoLinha, data: dadosServico }
+          : { action: "adicionar", data: dadosServico };
+
+        await fetch(URL_APPS_SCRIPT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload)
+        });
+        setTimeout(carregarDadosDoGoogleSheets, 1200);
+      } catch (err) {
+        console.error("Erro ao enviar ao Sheets:", err);
+      }
+
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar no Google Sheets";
+    }
+
+    async function excluirServico(linha, id) {
+      if (!confirm("Deseja realmente excluir este agendamento?")) return;
+
+      agendamentos = agendamentos.filter(s => s.id !== id);
+      renderizarTudo();
+
+      if (linha) {
+        try {
+          await fetch(URL_APPS_SCRIPT, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "excluir", linha: linha })
+          });
+          setTimeout(carregarDadosDoGoogleSheets, 1200);
+        } catch (err) {
+          console.error("Erro ao excluir do Sheets:", err);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
