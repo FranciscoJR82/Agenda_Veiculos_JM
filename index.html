@@ -26,13 +26,11 @@
       text-decoration: line-through;
       opacity: 0.75;
     }
-    /* Limite unificado de largura */
     .layout-centralizado {
       max-width: 1440px;
       margin-left: auto;
       margin-right: auto;
     }
-    /* Congelamento total desde o Banner até os filtros */
     .painel-fixo-total {
       position: sticky;
       top: 0;
@@ -40,7 +38,6 @@
       background-color: #f1f5f9;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     }
-    /* Tabelas fluidas */
     .tabela-fluida {
       width: 100%;
       table-layout: auto;
@@ -60,10 +57,10 @@
 
   <div class="layout-centralizado bg-slate-100 shadow-2xl min-h-screen flex flex-col">
 
-    <!-- BLOCO TOTALMENTE FIXO / CONGELADO AO ROLAR -->
+    <!-- BLOCO FIXO SUPERIOR -->
     <div class="painel-fixo-total border-b border-slate-300">
       
-      <!-- 1. Imagem do Banner -->
+      <!-- 1. Banner -->
       <div class="w-full bg-slate-950 overflow-hidden flex justify-center border-b border-slate-800">
         <img 
           src="banner_jm.jpg" 
@@ -74,7 +71,7 @@
         />
       </div>
 
-      <!-- 2. Barra de Navegação e Filtros Principais -->
+      <!-- 2. Barra de Navegação e Filtros -->
       <header class="bg-slate-900 text-white shadow-md">
         <div class="px-4 py-2 flex flex-wrap items-center justify-between gap-2.5">
           <div class="flex items-center gap-2">
@@ -84,7 +81,6 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2 no-print">
-            <!-- Filtro de Período -->
             <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 gap-1">
               <span class="text-xs text-slate-400 px-1 font-medium"><i class="ph ph-funnel"></i> Período:</span>
               <select id="filtroMes" onchange="aplicarFiltroPeriodo()" class="bg-slate-900 text-white text-xs font-semibold rounded px-1.5 py-1 border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
@@ -111,7 +107,6 @@
               </select>
             </div>
 
-            <!-- Seletor de Data -->
             <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
               <span class="text-xs text-slate-400 px-1.5 font-medium">Dia:</span>
               <input type="date" id="filtroData" class="bg-transparent text-white text-xs font-semibold focus:outline-none pr-1" />
@@ -136,7 +131,7 @@
         </div>
       </header>
 
-      <!-- 3. Cards de KPIs e Navegação Fixos -->
+      <!-- 3. Cards de KPIs e Abas -->
       <div class="px-4 pt-2.5 pb-2 space-y-2">
         <div id="gridKPIs" class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
           <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -202,7 +197,7 @@
       </div>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL ROLÁVEL -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <main id="containerPrincipal" class="px-4 py-4 space-y-4 flex-1">
 
       <!-- MODO 1: CRONOGRAMA DO DIA -->
@@ -258,7 +253,7 @@
         <div id="gridVeiculos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
-      <!-- MODO 3: HISTÓRICO GERAL COM FILTROS AVANÇADOS -->
+      <!-- MODO 3: HISTÓRICO GERAL -->
       <section id="secaoHistorico" class="space-y-4 hidden">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
           
@@ -271,7 +266,7 @@
             </div>
             <div class="flex items-center gap-2">
               <span id="contagemGeralBadge" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full"></span>
-              <button onclick="limparFiltrosGerais()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold px-2 py-1 rounded hover:bg-blue-50 transition" title="Limpar todos os filtros">
+              <button onclick="limparFiltrosGerais()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold px-2 py-1 rounded hover:bg-blue-50 transition">
                 Limpar Filtros
               </button>
             </div>
@@ -333,7 +328,6 @@
             </div>
           </div>
 
-          <!-- TABELA COM COLUNA FREQUÊNCIA -->
           <div class="w-full overflow-x-auto">
             <table class="tabela-fluida text-left text-xs">
               <thead>
@@ -418,14 +412,15 @@
           </div>
           
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Frequência *</label>
+            <label class="block font-medium text-slate-700 mb-1">Frequência</label>
             <select id="campoFrequencia" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 font-medium">
-              <option value="Sazonal">Sazonal</option>
+              <option value="">Selecione...</option>
               <option value="Semanal">Semanal</option>
               <option value="Mensal">Mensal</option>
               <option value="Bimestral">Bimestral</option>
               <option value="Semestral">Semestral</option>
               <option value="Anual">Anual</option>
+              <option value="Sazonal">Sazonal</option>
               <option value="Contrato" class="font-bold">Contrato (Negrito)</option>
               <option value="Emergência" class="font-bold text-red-600">Emergência (Vermelho)</option>
             </select>
@@ -445,13 +440,13 @@
           </div>
           <div>
             <label class="block font-medium text-slate-700 mb-1">Valor Previsto (R$)</label>
-            <input type="number" step="0.01" id="campoValor" placeholder="0,00" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
+            <input type="text" id="campoValor" inputmode="decimal" placeholder="Ex: 1.148,84" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" />
           </div>
         </div>
 
         <div>
           <label class="block font-medium text-slate-700 mb-1">Observações Complementares</label>
-          <textarea id="campoObs" rows="2" placeholder="Ex: 03 pessoas, cano de 75..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
+          <textarea id="campoObs" rows="2" placeholder="Ex: cano de 75, 03 ajudantes..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
         </div>
 
         <div class="flex justify-end gap-2 pt-2 border-t">
@@ -467,7 +462,6 @@
   <script>
     const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz62qdZsggJCGqm-okOeqqMTeMZExkKGz45bicNHEtHX04pB0e6cex7bLgRrJVMe_dJ/exec";
 
-    // Bases sincronizadas
     let baseVeiculos = [];
     let baseServicos = [];
     let baseMotoristas = [];
@@ -476,9 +470,9 @@
     let statusVeiculos = JSON.parse(localStorage.getItem("status_veiculos_jm") || "{}");
     let abaAtual = "lista";
     let ordenacaoGeral = { campo: "data", desc: true };
+    let chaveEdicaoAtual = null;
 
     window.addEventListener("DOMContentLoaded", () => {
-      // 1. Carrega imediatamente o cache local para nunca deixar a tela em branco
       recuperarCacheLocal();
 
       const hoje = new Date().toISOString().split("T")[0];
@@ -488,9 +482,53 @@
         campoDataFiltro.addEventListener("change", () => renderizarTudo());
       }
 
-      // 2. Dispara a busca remota no Google Sheets
       carregarDadosDoGoogleSheets();
     });
+
+    // FORMATAÇÃO DE MOEDA SEM MULTIPLICAR CENTAVOS
+    function formatarMoedaTabela(val) {
+      if (val === null || val === undefined || val === "" || val === "-") return "-";
+      if (typeof val === "number") {
+        return isNaN(val) ? "-" : "R$ " + val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      let s = String(val).replace(/R\$/g, "").trim();
+      if (s.includes(",") && s.includes(".")) {
+        s = s.replace(/\./g, "").replace(",", ".");
+      } else if (s.includes(",")) {
+        s = s.replace(",", ".");
+      }
+      
+      let num = parseFloat(s);
+      if (isNaN(num)) return "-";
+      return "R$ " + num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function converterValorParaFloat(val) {
+      if (val === null || val === undefined || val === "") return 0;
+      if (typeof val === "number") return isNaN(val) ? 0 : val;
+      let s = String(val).replace(/R\$/g, "").trim();
+      if (s.includes(",") && s.includes(".")) {
+        s = s.replace(/\./g, "").replace(",", ".");
+      } else if (s.includes(",")) {
+        s = s.replace(",", ".");
+      }
+      let n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    // FREQUÊNCIA 100% INDEPENDENTE (NÃO LÊ OBS)
+    function renderizarBadgeFrequencia(freq) {
+      const f = (freq || "").trim();
+      if (!f) return `<span class="text-slate-400 text-[11px]">—</span>`;
+      if (f === "Emergência") {
+        return `<span class="font-extrabold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">Emergência</span>`;
+      }
+      if (f === "Contrato") {
+        return `<span class="font-black text-slate-900 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">Contrato</span>`;
+      }
+      return `<span class="font-medium text-slate-700 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded text-[11px]">${f}</span>`;
+    }
 
     function recuperarCacheLocal() {
       try {
@@ -508,33 +546,6 @@
       } catch (e) {
         console.warn("Sem cache inicial:", e);
       }
-    }
-
-    function identificarFrequencia(s) {
-      if (s.frequencia && s.frequencia.trim()) return s.frequencia.trim();
-
-      const obsTexto = (s.obs || "").toUpperCase();
-      if (obsTexto.includes("EMERGÊNCIA") || obsTexto.includes("EMERGENCIA")) return "Emergência";
-      if (obsTexto.includes("CONTRATO")) return "Contrato";
-      if (obsTexto.includes("SEMANAL")) return "Semanal";
-      if (obsTexto.includes("BIMESTRAL")) return "Bimestral";
-      if (obsTexto.includes("SEMESTRAL")) return "Semestral";
-      if (obsTexto.includes("MENSAL")) return "Mensal";
-      if (obsTexto.includes("ANUAL")) return "Anual";
-      if (obsTexto.includes("SAZONAL")) return "Sazonal";
-
-      return "Sazonal";
-    }
-
-    function renderizarBadgeFrequencia(freq) {
-      const f = (freq || "Sazonal").trim();
-      if (f === "Emergência") {
-        return `<span class="font-extrabold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">Emergência</span>`;
-      }
-      if (f === "Contrato") {
-        return `<span class="font-black text-slate-900 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-[11px] uppercase tracking-wide">Contrato</span>`;
-      }
-      return `<span class="font-medium text-slate-700 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded text-[11px]">${f}</span>`;
     }
 
     function aplicarFiltroPeriodo() {
@@ -572,14 +583,11 @@
       badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-900/50 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 cursor-pointer";
       badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Sincronizando...`;
 
-      // Timeout de segurança de 8 segundos
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
 
       try {
-        const res = await fetch(URL_APPS_SCRIPT + "?t=" + new Date().getTime(), {
-          signal: controller.signal
-        });
+        const res = await fetch(URL_APPS_SCRIPT + "?t=" + new Date().getTime(), { signal: controller.signal });
         clearTimeout(timeoutId);
 
         const json = await res.json();
@@ -604,7 +612,6 @@
           renderizarTudo();
         }
       } catch (err) {
-        console.warn("Sincronização remota pendente, mantendo dados locais:", err);
         recuperarCacheLocal();
         badge.className = "text-xs px-2.5 py-1 rounded-full font-semibold bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1.5 cursor-pointer";
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Modo Local (${agendamentos.length} ordens)`;
@@ -621,22 +628,17 @@
 
       const selMotorista = document.getElementById("campoMotorista");
       if (selMotorista) {
-        selMotorista.innerHTML = baseMotoristas.map(m => 
-          `<option value="${m}">${m}</option>`
-        ).join("");
+        selMotorista.innerHTML = baseMotoristas.map(m => `<option value="${m}">${m}</option>`).join("");
       }
 
       const selAjudante = document.getElementById("campoAjudante");
       if (selAjudante) {
-        selAjudante.innerHTML = `<option value="">Nenhum</option>` + 
-          baseAjudantes.map(a => `<option value="${a}">${a}</option>`).join("");
+        selAjudante.innerHTML = `<option value="">Nenhum</option>` + baseAjudantes.map(a => `<option value="${a}">${a}</option>`).join("");
       }
 
       const selServico = document.getElementById("campoTipoServico");
       if (selServico) {
-        selServico.innerHTML = baseServicos.map(s => 
-          `<option value="${s}">${s}</option>`
-        ).join("");
+        selServico.innerHTML = baseServicos.map(s => `<option value="${s}">${s}</option>`).join("");
       }
     }
 
@@ -798,6 +800,7 @@
           (s.motorista || "").toLowerCase().includes(textoFiltro) ||
           (s.ajudante || "").toLowerCase().includes(textoFiltro) ||
           (s.tipoServico || "").toLowerCase().includes(textoFiltro) ||
+          (s.frequencia || "").toLowerCase().includes(textoFiltro) ||
           (s.status || "").toLowerCase().includes(textoFiltro) ||
           (s.obs || "").toLowerCase().includes(textoFiltro)
         );
@@ -810,12 +813,9 @@
       const badgeResumo = document.getElementById("resumoAtendimentosBadge");
 
       const servicosAtivos = servicos.filter(s => s.status !== "Cancelado");
-      const totalValor = servicosAtivos.reduce((acc, curr) => {
-        let v = String(curr.valor || "").replace("R$", "").replace(/\./g, "").replace(",", ".").trim();
-        return acc + (parseFloat(v) || 0);
-      }, 0);
+      const totalValor = servicosAtivos.reduce((acc, curr) => acc + converterValorParaFloat(curr.valor), 0);
 
-      badgeResumo.innerHTML = `<i class="ph ph-check-circle text-emerald-600"></i> ${servicosAtivos.length} ativas (${servicos.length - servicosAtivos.length} canc.) • Total: R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+      badgeResumo.innerHTML = `<i class="ph ph-check-circle text-emerald-600"></i> ${servicosAtivos.length} ativas (${servicos.length - servicosAtivos.length} canc.) • Total: R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
       if (servicos.length === 0) {
         tbody.innerHTML = "";
@@ -829,7 +829,6 @@
         const vInfo = baseVeiculos.find(v => v.placa === s.veiculo) || { tipo: "Resíduo" };
         const tipoBadge = vInfo.tipo === 'Água Potável' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800';
         const isCancelado = s.status === "Cancelado";
-        const frequencia = identificarFrequencia(s);
 
         const statusColors = {
           "Agendado": "bg-slate-100 text-slate-700 border-slate-300",
@@ -859,10 +858,10 @@
               <span class="${isCancelado ? 'texto-riscado' : ''}">${s.cliente}</span>
             </td>
             <td class="py-2.5 px-3 text-[11px] font-semibold text-slate-600">${s.tipoServico}</td>
-            <td class="py-2.5 px-3 whitespace-nowrap">${renderizarBadgeFrequencia(frequencia)}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">${renderizarBadgeFrequencia(s.frequencia)}</td>
             
             <td class="py-2.5 px-3 sem-quebra">
-              <select onchange="atualizarStatusServico('${s.linha || ''}', '${s.id}', this.value)" class="text-[11px] px-2 py-1 rounded-md border focus:outline-none cursor-pointer w-full ${statusColors}">
+              <select onchange="atualizarStatusServico('${s.id}', this.value)" class="text-[11px] px-2 py-1 rounded-md border focus:outline-none cursor-pointer w-full ${statusColors}">
                 <option value="Agendado" ${s.status === 'Agendado' ? 'selected' : ''}>⏳ Agendado</option>
                 <option value="Em deslocamento" ${s.status === 'Em deslocamento' ? 'selected' : ''}>🚚 Em deslocamento</option>
                 <option value="No Local" ${s.status === 'No Local' ? 'selected' : ''}>📍 No Local</option>
@@ -872,7 +871,7 @@
             </td>
 
             <td class="py-2.5 px-3 font-bold ${isCancelado ? 'text-rose-800 texto-riscado' : 'text-emerald-700'} sem-quebra">
-              ${s.valor ? `R$ ${parseFloat(String(s.valor).replace('R$', '').replace(/\./g, '').replace(',', '.')).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}
+              ${formatarMoedaTabela(s.valor)}
             </td>
             <td class="py-2.5 px-3 text-[11px] text-slate-500" title="${s.obs || ''}">
               ${isCancelado ? '<b class="text-rose-700">[CANCELADO]</b> ' : ''}${s.obs || '-'}
@@ -882,7 +881,7 @@
                 <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1.5 rounded transition" title="Editar">
                   <i class="ph ph-pencil-simple text-sm"></i>
                 </button>
-                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition" title="Excluir">
+                <button onclick="excluirServico('${s.id}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition" title="Excluir">
                   <i class="ph ph-trash text-sm"></i>
                 </button>
               </div>
@@ -908,9 +907,7 @@
 
       let filtrados = [...agendamentos];
 
-      if (filtroAno !== "todos") {
-        filtrados = filtrados.filter(s => (s.data || "").startsWith(filtroAno));
-      }
+      if (filtroAno !== "todos") filtrados = filtrados.filter(s => (s.data || "").startsWith(filtroAno));
       if (filtroMes !== "todos") {
         filtrados = filtrados.filter(s => {
           const partes = (s.data || "").split("-");
@@ -922,7 +919,7 @@
       if (fVeiculo !== "todos") filtrados = filtrados.filter(s => s.veiculo === fVeiculo);
       if (fEquipe !== "todos") filtrados = filtrados.filter(s => s.motorista === fEquipe || s.ajudante === fEquipe);
       if (fServico !== "todos") filtrados = filtrados.filter(s => s.tipoServico === fServico);
-      if (fFreq !== "todos") filtrados = filtrados.filter(s => identificarFrequencia(s) === fFreq);
+      if (fFreq !== "todos") filtrados = filtrados.filter(s => (s.frequencia || "").trim() === fFreq);
       if (fStatus !== "todos") filtrados = filtrados.filter(s => (s.status || "Agendado") === fStatus);
 
       document.getElementById("contagemGeralBadge").innerText = `${filtrados.length} registros exibidos`;
@@ -944,7 +941,6 @@
 
       tbody.innerHTML = filtrados.map(s => {
         const isCancelado = s.status === "Cancelado";
-        const frequencia = identificarFrequencia(s);
 
         return `
           <tr class="${isCancelado ? 'linha-cancelada' : 'hover:bg-slate-50'} transition border-b border-slate-100">
@@ -954,16 +950,16 @@
             <td class="py-2.5 px-3 text-slate-600"><b>${s.motorista}</b>${s.ajudante ? ' <span class="text-slate-500 font-normal">(' + s.ajudante + ')</span>' : ''}</td>
             <td class="py-2.5 px-3 font-semibold text-slate-900">${s.cliente}</td>
             <td class="py-2.5 px-3 text-slate-600">${s.tipoServico}</td>
-            <td class="py-2.5 px-3 whitespace-nowrap">${renderizarBadgeFrequencia(frequencia)}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">${renderizarBadgeFrequencia(s.frequencia)}</td>
             <td class="py-2.5 px-3 font-bold sem-quebra">${s.status || 'Agendado'}</td>
-            <td class="py-2.5 px-3 font-bold text-emerald-700 sem-quebra">${s.valor ? `R$ ${parseFloat(String(s.valor).replace('R$', '').replace(/\./g, '').replace(',', '.')).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '-'}</td>
+            <td class="py-2.5 px-3 font-bold text-emerald-700 sem-quebra">${formatarMoedaTabela(s.valor)}</td>
             <td class="py-2.5 px-3 text-slate-500" title="${s.obs || ''}">${s.obs || '-'}</td>
             <td class="py-2.5 px-2 text-center no-print sem-quebra">
               <div class="flex items-center justify-center gap-1.5">
                 <button onclick="editarServico('${s.id}')" class="text-blue-600 hover:text-blue-800 p-1" title="Editar">
                   <i class="ph ph-pencil-simple text-sm"></i>
                 </button>
-                <button onclick="excluirServico('${s.linha || ''}', '${s.id}')" class="text-rose-500 hover:text-rose-700 p-1" title="Excluir">
+                <button onclick="excluirServico('${s.id}')" class="text-rose-500 hover:text-rose-700 p-1" title="Excluir">
                   <i class="ph ph-trash text-sm"></i>
                 </button>
               </div>
@@ -977,6 +973,8 @@
       const s = agendamentos.find(item => item.id === id);
       if (!s) return;
 
+      chaveEdicaoAtual = { data: s.data, hora: s.hora, veiculo: s.veiculo, cliente: s.cliente };
+
       document.getElementById("servicoId").value = s.id;
       document.getElementById("servicoLinha").value = s.linha || "";
       document.getElementById("campoData").value = s.data;
@@ -986,9 +984,16 @@
       document.getElementById("campoAjudante").value = s.ajudante || "";
       document.getElementById("campoCliente").value = s.cliente;
       document.getElementById("campoTipoServico").value = s.tipoServico;
-      document.getElementById("campoFrequencia").value = identificarFrequencia(s);
+      document.getElementById("campoFrequencia").value = s.frequencia || "";
       document.getElementById("campoStatus").value = s.status || "Agendado";
-      document.getElementById("campoValor").value = s.valor ? String(s.valor).replace('R$', '').replace(/\./g, '').replace(',', '.').trim() : "";
+      
+      if (s.valor !== "" && s.valor !== null && s.valor !== undefined) {
+        let vNum = converterValorParaFloat(s.valor);
+        document.getElementById("campoValor").value = vNum > 0 ? vNum.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "";
+      } else {
+        document.getElementById("campoValor").value = "";
+      }
+
       document.getElementById("campoObs").value = s.obs || "";
 
       document.getElementById("modalTitulo").innerHTML = `<i class="ph ph-pencil-simple text-blue-400"></i> Editar Agendamento`;
@@ -996,24 +1001,24 @@
       document.getElementById("modalServico").classList.remove("hidden");
     }
 
-    async function atualizarStatusServico(linha, id, novoStatus) {
+    async function atualizarStatusServico(id, novoStatus) {
       const s = agendamentos.find(item => item.id === id);
-      if (s) {
-        s.status = novoStatus;
-        renderizarTudo();
-      }
+      if (!s) return;
 
-      if (linha) {
-        try {
-          await fetch(URL_APPS_SCRIPT, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "atualizarStatus", linha: linha, status: novoStatus })
-          });
-        } catch (e) {
-          console.error("Erro ao sincronizar status:", e);
-        }
+      const chave = { data: s.data, hora: s.hora, veiculo: s.veiculo, cliente: s.cliente };
+      s.status = novoStatus;
+      localStorage.setItem("cache_agenda", JSON.stringify(agendamentos));
+      renderizarTudo();
+
+      try {
+        await fetch(URL_APPS_SCRIPT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "atualizarStatus", linha: s.linha || "", chaveOriginal: chave, status: novoStatus })
+        });
+      } catch (e) {
+        console.error("Erro ao sincronizar status:", e);
       }
     }
 
@@ -1031,8 +1036,9 @@
       document.getElementById("formServico").reset();
       document.getElementById("servicoId").value = "";
       document.getElementById("servicoLinha").value = "";
+      chaveEdicaoAtual = null;
       document.getElementById("campoData").value = document.getElementById("filtroData")?.value || "";
-      document.getElementById("campoFrequencia").value = "Sazonal";
+      document.getElementById("campoFrequencia").value = "";
       document.getElementById("modalTitulo").innerHTML = `<i class="ph ph-notepad text-blue-400"></i> Agendar Serviço no Google Sheets`;
       document.getElementById("btnSalvarModal").innerText = "Salvar no Google Sheets";
 
@@ -1055,6 +1061,7 @@
       const servicoId = document.getElementById("servicoId").value;
       const servicoLinha = document.getElementById("servicoLinha").value;
       const frequenciaEscolhida = document.getElementById("campoFrequencia").value;
+      const valorDigitado = document.getElementById("campoValor").value;
 
       const dadosServico = {
         data: document.getElementById("campoData").value,
@@ -1065,7 +1072,7 @@
         cliente: document.getElementById("campoCliente").value,
         tipoServico: document.getElementById("campoTipoServico").value,
         frequencia: frequenciaEscolhida,
-        valor: document.getElementById("campoValor").value,
+        valor: converterValorParaFloat(valorDigitado) || "",
         obs: document.getElementById("campoObs").value,
         status: document.getElementById("campoStatus").value || "Agendado"
       };
@@ -1078,15 +1085,19 @@
           agendamentos[index] = { ...agendamentos[index], ...dadosServico };
         }
       } else {
-        agendamentos.push({ ...dadosServico, id: 'tmp_' + Date.now() });
+        agendamentos.push({
+          ...dadosServico,
+          id: "tmp_" + Date.now() + "_" + dadosServico.data + "_" + dadosServico.hora
+        });
       }
 
+      localStorage.setItem("cache_agenda", JSON.stringify(agendamentos));
       renderizarTudo();
       fecharModalServico();
 
       try {
         const payload = isEdicao 
-          ? { action: "editar", linha: servicoLinha, data: dadosServico }
+          ? { action: "editar", linha: servicoLinha, chaveOriginal: chaveEdicaoAtual, data: dadosServico }
           : { action: "adicionar", data: dadosServico };
 
         await fetch(URL_APPS_SCRIPT, {
@@ -1095,7 +1106,7 @@
           headers: { "Content-Type": "text/plain" },
           body: JSON.stringify(payload)
         });
-        setTimeout(carregarDadosDoGoogleSheets, 1200);
+        setTimeout(carregarDadosDoGoogleSheets, 1500);
       } catch (err) {
         console.error("Erro ao enviar ao Sheets:", err);
       }
@@ -1104,24 +1115,30 @@
       btnSalvar.innerText = "Salvar no Google Sheets";
     }
 
-    async function excluirServico(linha, id) {
-      if (!confirm("Deseja realmente excluir este agendamento?")) return;
+    async function excluirServico(id) {
+      const s = agendamentos.find(item => item.id === id);
+      if (!s) return;
 
-      agendamentos = agendamentos.filter(s => s.id !== id);
+      if (!confirm(`Deseja realmente excluir o agendamento de "${s.cliente}"?`)) return;
+
+      const chave = { data: s.data, hora: s.hora, veiculo: s.veiculo, cliente: s.cliente };
+      const linha = s.linha || "";
+
+      // Remove imediatamente da tela e do cache local
+      agendamentos = agendamentos.filter(item => item.id !== id);
+      localStorage.setItem("cache_agenda", JSON.stringify(agendamentos));
       renderizarTudo();
 
-      if (linha) {
-        try {
-          await fetch(URL_APPS_SCRIPT, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "excluir", linha: linha })
-          });
-          setTimeout(carregarDadosDoGoogleSheets, 1200);
-        } catch (err) {
-          console.error("Erro ao excluir do Sheets:", err);
-        }
+      try {
+        await fetch(URL_APPS_SCRIPT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "excluir", linha: linha, chaveOriginal: chave })
+        });
+        setTimeout(carregarDadosDoGoogleSheets, 1500);
+      } catch (err) {
+        console.error("Erro ao excluir do Sheets:", err);
       }
     }
   </script>
